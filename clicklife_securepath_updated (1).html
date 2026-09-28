@@ -1,0 +1,2240 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clicklife SecurePath</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#0284c7',
+                            600: '#0369a1',
+                            700: '#075985',
+                            800: '#0c4a6e',
+                            900: '#0f172a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome Icons -->
+    <!-- SheetJS (xlsx) for Excel export -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- jsPDF and AutoTable for PDF Reports -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Mulish:wght@300;400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Mulish', sans-serif;
+        }
+        /* Custom scrollbar for data tables */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        .dark ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.5);
+            border-radius: 4px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+            background: rgba(75, 85, 99, 0.5);
+        }
+        :root { --bg:#0f141c; --card:#151b25; --row:#1a212c; --row2:#202938; --line:#222b39; --txt:#e8ecf4; --mut:#8b96a9; --blue:#2563eb; }
+        html, body, button, input, select, textarea, table, .font-mono { font-family: 'Mulish', system-ui, sans-serif !important; }
+        .font-mono { font-variant-numeric: tabular-nums; }
+        .uppercase { text-transform: none !important; letter-spacing: 0 !important; }
+        .dark body, body.dark { background: var(--bg) !important; color: var(--txt); }
+        .dark body { background: var(--bg) !important; color: var(--txt); }
+        /* rail */
+        .cl-top { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 26px; flex-wrap: wrap; }
+        .cl-title { font-size: 30px; font-weight: 800; letter-spacing: -.02em; line-height: 1.1; }
+        .cl-sub { color: var(--mut); font-size: 15px; margin-top: 4px; }
+        .cl-switch { min-width: 220px; padding: 11px 14px !important; font-weight: 700; }
+        .cl-spark { width: 100%; height: 34px; margin-top: 12px; display: block; }
+        /* surfaces */
+        .dark .dark\:bg-slate-800, .dark .bg-slate-800 { background: var(--card) !important; }
+        .dark .dark\:bg-slate-900, .dark .bg-slate-900 { background: #111720 !important; }
+        .dark .dark\:bg-slate-700 { background: #232c3a !important; }
+        .dark .dark\:border-slate-700, .dark .border-slate-700 { border-color: var(--line) !important; }
+        .dark .rounded-xl { border-radius: 20px !important; }
+        .dark .bg-white { background: var(--card) !important; }
+        .dark .shadow-sm { box-shadow: none !important; }
+        .dark .fixed.inset-0 { backdrop-filter: blur(7px); }
+        .dark .text-slate-500, .dark .dark\:text-slate-400 { color: var(--mut) !important; }
+        /* form controls */
+        input, select, textarea { border-radius: 12px !important; }
+        .dark input, .dark select, .dark textarea { background: #111720 !important; border: 1px solid var(--line) !important; color: var(--txt) !important; }
+        input:focus, select:focus, textarea:focus { outline: none !important; border-color: #3b82f6 !important; box-shadow: 0 0 0 3px rgba(59,130,246,.22) !important; }
+        /* buttons */
+        button { border-radius: 12px; font-weight: 700; transition: background .15s, box-shadow .15s, transform .1s, color .15s; }
+        button:active { transform: scale(.96); }
+        button:focus-visible { outline: 2px solid #5b93ff; outline-offset: 2px; }
+        button[class*="bg-brand-600"] { background: linear-gradient(180deg,#3b78f5,#2563eb) !important; box-shadow: 0 8px 20px -8px rgba(37,99,235,.85), inset 0 1px 0 rgba(255,255,255,.2); }
+        button[class*="bg-brand-600"]:hover { filter: brightness(1.1); }
+        button[class*="bg-slate-900"]:not(.cl-nav) { background: #1b2330 !important; border: 1px solid #2a3446; color: #e8ecf4; }
+        button[class*="bg-slate-900"]:not(.cl-nav):hover { background: #232d3d !important; }
+        button[class*="bg-rose-6"], button[class*="bg-red-6"] { background: linear-gradient(180deg,#f0506e,#e11d48) !important; box-shadow: 0 8px 20px -8px rgba(225,29,72,.8); }
+        button[class*="bg-emerald-6"] { background: linear-gradient(180deg,#22c58b,#059669) !important; }
+        button[class*="w-8"][class*="h-8"] { width: 36px !important; height: 36px !important; border-radius: 11px; font-size: 13px; }
+        button[class*="w-8"][class*="h-8"]:hover[title^="Decrease"] { background: rgba(244,63,94,.18) !important; color: #fb7185 !important; }
+        button[class*="w-8"][class*="h-8"]:hover[title^="Increase"] { background: rgba(52,211,153,.18) !important; color: #34d399 !important; }
+        td button[title] { width: 36px; height: 36px; display: inline-grid; place-items: center; border-radius: 11px; padding: 0 !important; font-size: 14px; }
+        td button[title^="View"] { background: rgba(148,163,184,.14) !important; color: #b6c0d1 !important; }
+        td button[title^="Edit"] { background: rgba(59,130,246,.16) !important; color: #7aa7ff !important; }
+        td button[title^="Archive"] { background: rgba(251,191,36,.14) !important; color: #fbbf24 !important; }
+        td button[title^="Unarchive"] { background: rgba(52,211,153,.15) !important; color: #34d399 !important; }
+        td button[title]:hover { filter: brightness(1.35); }
+        /* status dots + badges */
+        span.w-3.h-3.rounded-full { box-shadow: 0 0 0 4px rgba(255,255,255,.06), 0 0 14px 1px currentColor; }
+        span[class*="rounded"][class*="border"][class*="text-["] { border-radius: 999px !important; padding: 3px 11px !important; font-weight: 700; }
+        /* tables as separated rows */
+        .dark table { border-collapse: separate; border-spacing: 0 8px; padding: 0 12px 8px; }
+        .dark thead tr, .dark thead th { background: transparent !important; border: 0 !important; color: var(--mut) !important; font-weight: 700; font-size: 12.5px !important; }
+        .dark tbody tr { border: 0 !important; background: transparent !important; }
+        .dark tbody td { background: var(--row); padding-top: 16px !important; padding-bottom: 16px !important; }
+        .dark tbody td:first-child { border-radius: 16px 0 0 16px; padding-left: 20px !important; }
+        .dark tbody td:last-child { border-radius: 0 16px 16px 0; padding-right: 20px !important; }
+        .dark tbody tr:hover td { background: var(--row2); }
+        ::-webkit-scrollbar-thumb { border-radius: 8px; }
+        @media (max-width: 820px) {
+            .cl-title { font-size: 24px; }
+        }
+        @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+        .cl-amt { display: flex; flex-direction: column; gap: 12px; margin-bottom: 18px; }
+        .cl-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 5px; border-radius: 14px; background: rgba(148,163,184,.12); }
+        .cl-seg button { padding: 10px; font-size: 13px; color: #8b96a9; background: transparent; }
+        .cl-seg button.on.add { background: rgba(52,211,153,.18); color: #34d399; box-shadow: inset 0 0 0 1px rgba(52,211,153,.35); }
+        .cl-seg button.on.sub { background: rgba(244,63,94,.18); color: #fb7185; box-shadow: inset 0 0 0 1px rgba(244,63,94,.35); }
+        .cl-lbl { font-size: 12px; font-weight: 700; color: #8b96a9; margin-bottom: -6px; }
+        .cl-amt-input { width: 100%; padding: 14px 16px !important; font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; }
+        .cl-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+        .cl-chips button { flex: 1; min-width: 44px; padding: 8px 0; font-size: 13px; background: rgba(59,130,246,.14); color: #7aa7ff; box-shadow: inset 0 0 0 1px rgba(59,130,246,.25); }
+        .cl-chips button:hover { background: rgba(59,130,246,.28); }
+        .cl-preview { display: flex; justify-content: space-between; align-items: center; padding: 13px 16px; border-radius: 14px; background: rgba(148,163,184,.1); font-size: 14px; }
+        .cl-preview b { font-size: 17px; font-weight: 800; }
+        .cl-preview em { font-style: normal; font-weight: 800; margin-left: 8px; padding: 2px 9px; border-radius: 999px; font-size: 12px; }
+        .cl-preview em.add { background: rgba(52,211,153,.16); color: #34d399; }
+        .cl-preview em.sub { background: rgba(244,63,94,.16); color: #fb7185; }
+
+        /* ===== Redesign: top bar, neutral palette, smooth pages ===== */
+        :root { --bg:#f6f6f4; --card:#ffffff; --row:#f3f3f1; --row2:#eaeae7; --line:#e4e4e0; --txt:#1c1c1a; --mut:#75756f; --acc:#1c1c1a; --acc-txt:#ffffff; --bar:rgba(246,246,244,.82); --ease:cubic-bezier(.22,.8,.3,1); }
+        .dark { --bg:#141414; --card:#1b1b1b; --row:#202020; --row2:#282828; --line:#2a2a2a; --txt:#ececea; --mut:#8e8e88; --acc:#ececea; --acc-txt:#141414; --bar:rgba(20,20,20,.82); }
+        html { scroll-behavior: smooth; }
+        body, .dark body, body.dark { background: var(--bg) !important; color: var(--txt) !important; }
+        /* top bar */
+        .cl-bar { position: sticky; top: 0; z-index: 40; display: flex; align-items: center; gap: 22px; min-height: 68px; padding: 0 32px; background: var(--bar); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
+        .cl-brand { display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 800; font-size: 15px; letter-spacing: -.01em; white-space: nowrap; color: var(--txt); }
+        .cl-brand svg path:first-child { fill: var(--acc); }
+        .cl-brand svg path:nth-child(2) { stroke: var(--acc-txt); }
+        .cl-tabs { display: flex; align-items: center; gap: 4px; flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+        .cl-tabs::-webkit-scrollbar { display: none; }
+        .cl-end { display: flex; align-items: center; gap: 4px; margin-left: auto; padding-left: 8px; }
+        .cl-divider { width: 1px; height: 24px; background: var(--line); margin: 0 6px 0 2px; }
+        .cl-action { color: var(--mut); }
+        .cl-nav { position: relative; display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 13px; border-radius: 10px; color: var(--mut); font-size: 13.5px; font-weight: 600; background: transparent !important; white-space: nowrap; box-shadow: none !important; }
+        .cl-nav i { font-size: 14px; }
+        .cl-nav:hover { color: var(--txt); background: var(--row) !important; }
+        .cl-nav.on { color: var(--txt); background: var(--row2) !important; }
+        .cl-nav.on::after { content: ''; position: absolute; left: 13px; right: 13px; bottom: -13px; height: 2px; border-radius: 2px; background: var(--acc); animation: clLine .35s var(--ease); }
+        .cl-nav.icon { width: 38px; padding: 0; justify-content: center; }
+        .cl-nav.danger:hover { color: #b4574f; }
+        .cl-nav[data-tip]:hover::before { content: attr(data-tip); position: absolute; top: 46px; right: 0; white-space: nowrap; background: var(--txt); color: var(--bg); font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 8px; pointer-events: none; z-index: 60; }
+        .cl-nav.icon.on::after { left: 9px; right: 9px; }
+        .cl-main { margin: 0 auto; padding: 36px 32px 64px; max-width: 1400px; }
+        .cl-top { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 28px; flex-wrap: wrap; }
+        .cl-title { font-size: 28px; font-weight: 800; letter-spacing: -.02em; line-height: 1.1; }
+        .cl-sub { color: var(--mut); font-size: 14px; margin-top: 6px; }
+        .cl-switch { min-width: 220px; padding: 10px 14px !important; font-weight: 600; }
+        /* surfaces (both themes) */
+        .bg-white, .dark .bg-white, .dark .bg-slate-800, .dark .dark\:bg-slate-800 { background: var(--card) !important; }
+        .bg-slate-50, .bg-slate-100 { background: var(--row) !important; }
+        .dark .bg-slate-900, .dark .dark\:bg-slate-900 { background: var(--row) !important; }
+        .dark .dark\:bg-slate-700 { background: var(--row2) !important; }
+        .border-slate-200, .border-slate-100, .dark .border-slate-700, .dark .dark\:border-slate-700, .border-slate-300 { border-color: var(--line) !important; }
+        .rounded-xl, .dark .rounded-xl { border-radius: 16px !important; }
+        .shadow-sm, .dark .shadow-sm { box-shadow: none !important; }
+        .text-slate-500, .text-slate-400, .dark .text-slate-500, .dark .dark\:text-slate-400 { color: var(--mut) !important; }
+        .text-slate-800, .text-slate-900, .text-slate-700 { color: var(--txt) !important; }
+        .dark .text-white { color: var(--txt) !important; }
+        input, select, textarea { background: var(--card) !important; border: 1px solid var(--line) !important; color: var(--txt) !important; border-radius: 10px !important; transition: border-color .2s, box-shadow .2s; }
+        input:focus, select:focus, textarea:focus { border-color: var(--mut) !important; box-shadow: 0 0 0 3px rgba(128,128,120,.18) !important; }
+        /* neutral accents: remove blue/purple/gradients */
+        button[class*="bg-brand-"], button[class*="bg-purple-6"], button[class*="bg-slate-900"]:not(.cl-nav) { background: var(--acc) !important; color: var(--acc-txt) !important; border: 0 !important; box-shadow: none !important; }
+        button[class*="bg-brand-"]:hover, button[class*="bg-slate-900"]:not(.cl-nav):hover { opacity: .88; filter: none !important; }
+        button[class*="bg-rose-6"], button[class*="bg-red-6"], button[class*="bg-emerald-6"] { background: var(--acc) !important; color: var(--acc-txt) !important; box-shadow: none !important; }
+        [class*="text-brand-"], [class*="text-purple-"] { color: var(--txt) !important; }
+        [class*="bg-brand-"]:not(button), [class*="bg-purple-"]:not(button) { background: var(--row2) !important; }
+        [class*="ring-brand-"] { --tw-ring-color: var(--mut) !important; }
+        [class*="border-brand-"] { border-color: var(--mut) !important; }
+        /* status colours: kept only as soft, muted signals */
+        [class*="bg-emerald-1"], [class*="bg-emerald-5"]:not(.w-3), [class*="bg-emerald-9"] { background: rgba(110,140,120,.16) !important; }
+        [class*="bg-rose-1"], [class*="bg-rose-5"]:not(.w-3), [class*="bg-rose-9"] { background: rgba(160,110,105,.16) !important; }
+        [class*="bg-amber-1"], [class*="bg-amber-5"]:not(.w-3), [class*="bg-amber-9"] { background: rgba(160,140,100,.16) !important; }
+        [class*="text-emerald-"] { color: #6f8f7c !important; }
+        [class*="text-rose-"], [class*="text-red-"] { color: #a86f69 !important; }
+        [class*="text-amber-"] { color: #a08f66 !important; }
+        [class*="border-rose-"], [class*="border-amber-"], [class*="border-emerald-"] { border-color: var(--line) !important; }
+        .w-3.h-3.rounded-full { box-shadow: none !important; }
+        td button[title], td button[title^="View"], td button[title^="Edit"], td button[title^="Archive"], td button[title^="Unarchive"] { background: var(--row2) !important; color: var(--txt) !important; }
+        button[class*="w-8"][class*="h-8"]:hover[title^="Decrease"], button[class*="w-8"][class*="h-8"]:hover[title^="Increase"] { background: var(--row2) !important; color: var(--txt) !important; }
+        .cl-seg { background: var(--row); }
+        .cl-seg button.on.add, .cl-seg button.on.sub { background: var(--acc) !important; color: var(--acc-txt) !important; box-shadow: none; }
+        .cl-seg button { color: var(--mut); }
+        .cl-chips button { background: var(--row2) !important; color: var(--txt) !important; box-shadow: none; }
+        .cl-chips button:hover { background: var(--line) !important; }
+        .cl-lbl { color: var(--mut); }
+        .cl-preview { background: var(--row); }
+        .cl-preview em.add, .cl-preview em.sub { background: var(--row2); color: var(--txt); }
+        /* tables */
+        table { border-collapse: separate; border-spacing: 0 6px; padding: 0 12px 8px; }
+        thead tr, thead th { background: transparent !important; border: 0 !important; color: var(--mut) !important; font-weight: 600; font-size: 12.5px !important; }
+        tbody tr { border: 0 !important; background: transparent !important; }
+        tbody td { background: var(--row); padding-top: 14px !important; padding-bottom: 14px !important; transition: background .2s; }
+        tbody td:first-child { border-radius: 12px 0 0 12px; padding-left: 18px !important; }
+        tbody td:last-child { border-radius: 0 12px 12px 0; padding-right: 18px !important; }
+        tbody tr:hover td { background: var(--row2); }
+        /* page transitions */
+        .cl-page-in { animation: clPage .5s var(--ease) both; }
+        .cl-page-in > * > *, .cl-page-in > * { animation: clRise .55s var(--ease) both; }
+        .cl-page-in > * > *:nth-child(1) { animation-delay: .03s; } .cl-page-in > * > *:nth-child(2) { animation-delay: .07s; }
+        .cl-page-in > * > *:nth-child(3) { animation-delay: .11s; } .cl-page-in > * > *:nth-child(4) { animation-delay: .15s; }
+        .cl-page-in > * > *:nth-child(5) { animation-delay: .19s; } .cl-page-in > * > *:nth-child(n+6) { animation-delay: .23s; }
+        .cl-toast { animation: clToast .4s var(--ease) both !important; }
+        .fixed.inset-0 { animation: clFade .2s ease both; }
+        .fixed.inset-0 > div { animation: clPop .3s var(--ease) both; }
+        @keyframes clPage { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes clRise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+        @keyframes clLine { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+        @keyframes clFade { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes clPop { from { opacity: 0; transform: translateY(12px) scale(.97); } to { opacity: 1; transform: none; } }
+        @keyframes clToast { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+        ::-webkit-scrollbar-thumb { background: var(--line); }
+        @media (max-width: 900px) {
+            .cl-bar { padding: 0 12px; gap: 8px; min-height: 60px; }
+            .cl-divider { display: none; }
+            .cl-brand span { display: none; }
+            .cl-nav { padding: 0 10px; }
+            .cl-nav.on::after { bottom: -13px; }
+            .cl-main { padding: 22px 16px 56px; }
+            .cl-title { font-size: 24px; }
+            .cl-end .cl-nav[data-tip]:hover::before { display: none; }
+        }
+        /* ===== Fixes: button contrast, text row actions, loading ===== */
+        html button[class*="bg-brand-"].text-white,
+        html button[class*="bg-purple-6"].text-white,
+        html button[class*="bg-slate-900"].text-white,
+        html button[class*="bg-slate-800"].text-white,
+        html button[class*="bg-rose-6"].text-white,
+        html button[class*="bg-red-6"].text-white,
+        html button[class*="bg-emerald-6"].text-white {
+            background: var(--acc) !important;
+            color: var(--acc-txt) !important;
+            border: 0 !important;
+            font-weight: 700;
+        }
+        html button[class*="bg-brand-"].text-white:hover,
+        html button[class*="bg-slate-800"].text-white:hover,
+        html button[class*="bg-slate-900"].text-white:hover { opacity: .88; }
+        html td button[title] { width: auto !important; min-width: 0; padding: 0 14px !important; font-size: 12px !important; display: inline-flex; }
+        .cl-nav span { display: inline !important; }
+        .cl-loader-bar { position: fixed; top: 0; left: 0; height: 3px; width: 100%; background: var(--acc); transform-origin: left; animation: clLoad .45s var(--ease) both; z-index: 80; }
+        .cl-loading { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; min-height: 340px; color: var(--mut); font-size: 13px; font-weight: 600; }
+        .cl-spinner { width: 34px; height: 34px; border: 3px solid var(--line); border-top-color: var(--acc); border-radius: 50%; animation: clSpin .7s linear infinite; }
+        @keyframes clLoad { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+        @keyframes clSpin { to { transform: rotate(360deg); } }
+        .cl-warn { background: var(--row2); color: var(--txt); border-bottom: 1px solid var(--line); text-align: center; font-size: 12.5px; font-weight: 600; padding: 8px 16px; }
+    </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-full flex flex-col transition-colors duration-150">
+
+    <div id="app" class="min-h-screen flex flex-col">
+        <!-- APP UI CONTENT WILL BE RENDERED HERE BY JAVASCRIPT -->
+    </div>
+
+    <script type="module">
+        import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+        // Supabase configuration. The publishable/anon key is intended for browser
+        // use; protect the table with the RLS policies in supabase_setup.sql.
+        const SUPABASE_URL = "https://lhdmutmmxmtymjmjqwcd.supabase.co";
+        const SUPABASE_KEY = "sb_publishable_8dMMARqunxBdIr3pdCdmng_QXcasBtd";
+        const SUPABASE_TABLE = 'fleet_data';
+        const SUPABASE_ROW_ID = 'main_data';
+        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Login credentials requested for this single-file app.
+        const LOGIN_EMAIL = 'moamen@clicklife.com';
+        const LOGIN_PASSWORD = 'moamen123A';
+
+        // Global State Manager
+        window.AppState = {
+            currentUser: null,
+            isAuthenticated: false,
+            theme: localStorage.getItem('fleettrack_theme') || 'dark',
+            activeTab: 'dashboard', // dashboard, companies, cars, installation, archived, history, reports, backup, settings
+            selectedCompanyId: 'ALL', // 'ALL' or specific company id
+            
+            // Search & Filters state
+            filters: {
+                search: '',
+                companyId: 'ALL',
+                status: 'ALL',
+                installed: 'ALL',
+                installationStatus: 'ALL',
+                type: 'active'
+            },
+
+            // Pagination
+            pagination: {
+                currentPage: 1,
+                pageSize: 15
+            },
+
+            // Application Data
+            companies: [],
+            vehicles: [],
+            manualStats: {}, // { companyId: { statusKey: count } }
+            statsHistory: [],
+            vehicleHistory: [],
+
+            // Modals & Temp States
+            modal: null, // { type, data }
+            notification: null,
+
+            // Supabase handles
+            db: supabase,
+            auth: null,
+            cloudConnected: false,
+            cloudStatus: 'off', // off | connecting | connected | error
+            loading: false,
+            cloudReady: false,
+            isSeed: false,
+            updatedAt: 0
+        };
+
+        // Initialize Supabase cloud sync. Local storage remains the offline fallback.
+        window.AppState.cloudStatus = 'connecting';
+        setTimeout(() => {
+            if (window.AppState.cloudStatus === 'connecting') {
+                window.AppState.cloudStatus = 'error';
+                if (window.renderApp) renderApp();
+            }
+        }, 10000);
+        listenToCloudData();
+
+        // Initial Seed Mock Data if local storage is empty
+        function initializeDefaultData() {
+            const savedData = localStorage.getItem('fleettrack_db_data');
+            if (savedData) {
+                try {
+                    const parsed = JSON.parse(savedData);
+                    window.AppState.companies = parsed.companies || [];
+                    window.AppState.vehicles = parsed.vehicles || [];
+                    window.AppState.manualStats = parsed.manualStats || {};
+                    window.AppState.statsHistory = parsed.statsHistory || [];
+                    window.AppState.vehicleHistory = parsed.vehicleHistory || [];
+                    window.AppState.isSeed = parsed.isSeed === true;
+                    window.AppState.updatedAt = parsed.updatedAt || 0;
+                    return;
+                } catch(e) {
+                    console.error("Error reading saved data", e);
+                }
+            }
+
+            // Default seed data
+            window.AppState.companies = [
+                { id: 'comp_1', name: 'Desert Car Rental', regId: 'CR-88491', contact: '+971 4 239 8800', notes: 'Primary rental fleet client' },
+                { id: 'comp_2', name: 'Gulf Logistics Hub', regId: 'GL-90212', contact: '+971 4 501 1234', notes: 'Heavy transport and delivery trucks' },
+                { id: 'comp_3', name: 'Apex Executive Transport', regId: 'AX-11029', contact: '+971 4 882 9900', notes: 'VIP Chauffeur Limousines' }
+            ];
+
+            window.AppState.manualStats = {
+                'ALL': { Signal: 416, Deactivated: 22, Failing: 26, Dead: 211, NotRenewed: 65, NotActivated: 21, NonActive: 1, Expired: 0 },
+                'comp_1': { Signal: 210, Deactivated: 10, Failing: 12, Dead: 100, NotRenewed: 30, NotActivated: 10, NonActive: 1, Expired: 0 },
+                'comp_2': { Signal: 150, Deactivated: 8, Failing: 10, Dead: 80, NotRenewed: 25, NotActivated: 8, NonActive: 0, Expired: 0 },
+                'comp_3': { Signal: 56, Deactivated: 4, Failing: 4, Dead: 31, NotRenewed: 10, NotActivated: 3, NonActive: 0, Expired: 0 }
+            };
+
+            window.AppState.vehicles = [
+                {
+                    id: 'v_1',
+                    companyId: 'comp_1',
+                    plateNumber: 'Y-23717',
+                    vin: 'SALEA7BX2P2223413',
+                    deviceNumber: '864201049281723',
+                    simCardNumber: '971501234567',
+                    correctDeviceNumber: '864201049281723',
+                    correctSimCardNumber: '971501234567',
+                    status: 'Signal',
+                    installed: 'Yes',
+                    installationStatus: 'Installed',
+                    archived: false,
+                    notes: 'GPS tracker active in front dashboard.',
+                    createdAt: '2026-08-15T10:00:00Z'
+                },
+                {
+                    id: 'v_2',
+                    companyId: 'comp_1',
+                    plateNumber: 'A-90812',
+                    vin: 'WDB2110561A892301',
+                    deviceNumber: '869018293810231',
+                    simCardNumber: '971509876543',
+                    correctDeviceNumber: '869018293810231',
+                    correctSimCardNumber: '971509876543',
+                    status: 'Dead',
+                    installed: 'Yes',
+                    installationStatus: 'Installed',
+                    archived: false,
+                    notes: 'Needs technician inspection for battery drain.',
+                    createdAt: '2026-08-18T14:30:00Z'
+                },
+                {
+                    id: 'v_3',
+                    companyId: 'comp_2',
+                    plateNumber: 'DXB-44910',
+                    vin: 'JN1TANT31U0019284',
+                    deviceNumber: '358291082391029',
+                    simCardNumber: '971552211443',
+                    correctDeviceNumber: '358291082391029',
+                    correctSimCardNumber: '971552211443',
+                    status: 'Failing',
+                    installed: 'Yes',
+                    installationStatus: 'Installed',
+                    archived: false,
+                    notes: 'Intermittent signal loss near industrial zone.',
+                    createdAt: '2026-09-01T09:15:00Z'
+                },
+                {
+                    id: 'v_4',
+                    companyId: 'comp_3',
+                    plateNumber: 'EX-00921',
+                    vin: '1G4CW541251908231',
+                    deviceNumber: '990012839102931',
+                    simCardNumber: '971583344556',
+                    correctDeviceNumber: '990012839102931',
+                    correctSimCardNumber: '971583344556',
+                    status: 'Not Activated',
+                    installed: 'No',
+                    installationStatus: 'Not Installed',
+                    archived: false,
+                    notes: 'Pending delivery of new SIM profile.',
+                    createdAt: '2026-09-10T11:20:00Z'
+                },
+                {
+                    id: 'v_5',
+                    companyId: 'comp_1',
+                    plateNumber: 'OLD-99120',
+                    vin: 'KMHD84LF2GU991024',
+                    deviceNumber: '110293849102839',
+                    simCardNumber: '971500000111',
+                    correctDeviceNumber: '110293849102839',
+                    correctSimCardNumber: '971500000111',
+                    status: 'Deactivated',
+                    installed: 'Yes',
+                    installationStatus: 'Installed',
+                    archived: true,
+                    notes: 'Vehicle sold at auction.',
+                    createdAt: '2026-07-10T08:00:00Z'
+                }
+            ];
+
+            window.AppState.statsHistory = [
+                {
+                    id: 'sh_1',
+                    companyId: 'comp_1',
+                    companyName: 'Desert Car Rental',
+                    category: 'Dead',
+                    oldValue: 101,
+                    newValue: 100,
+                    changeAmount: -1,
+                    reason: 'Car repaired and tracker rebooted',
+                    date: '2026-09-28',
+                    time: '14:22:10',
+                    user: 'admin'
+                }
+            ];
+
+            window.AppState.vehicleHistory = [
+                {
+                    id: 'vh_1',
+                    vehicleId: 'v_1',
+                    plateNumber: 'Y-23717',
+                    fieldChanged: 'Device Number',
+                    oldValue: '864201049000000',
+                    newValue: '864201049281723',
+                    reason: 'Device upgraded to 4G LTE tracker',
+                    date: '2026-09-20',
+                    time: '11:05:30',
+                    user: 'admin'
+                }
+            ];
+
+            saveDataLocally(true);
+        }
+
+        function buildPayload() {
+            return {
+                companies: window.AppState.companies,
+                vehicles: window.AppState.vehicles,
+                manualStats: window.AppState.manualStats,
+                statsHistory: window.AppState.statsHistory,
+                vehicleHistory: window.AppState.vehicleHistory,
+                isSeed: window.AppState.isSeed,
+                updatedAt: window.AppState.updatedAt
+            };
+        }
+
+        async function pushToCloud() {
+            const st = window.AppState;
+            if (!st.db || !st.cloudReady || st.isSeed) return;
+            try {
+                const { error } = await supabase.from(SUPABASE_TABLE).upsert({
+                    id: SUPABASE_ROW_ID,
+                    payload: buildPayload(),
+                    updated_at: st.updatedAt
+                }, { onConflict: 'id' });
+                if (error) throw error;
+                st.cloudStatus = 'connected';
+                st.cloudConnected = true;
+            } catch (err) {
+                console.error('Supabase save error:', err);
+                st.cloudStatus = 'error';
+                renderApp();
+            }
+        }
+
+        async function listenToCloudData() {
+            const st = window.AppState;
+            try {
+                const { data: row, error } = await supabase
+                    .from(SUPABASE_TABLE)
+                    .select('id,payload,updated_at')
+                    .eq('id', SUPABASE_ROW_ID)
+                    .maybeSingle();
+                if (error) throw error;
+
+                st.cloudStatus = 'connected';
+                st.cloudConnected = true;
+                if (!row) {
+                    st.cloudReady = true;
+                    await pushToCloud();
+                    renderApp();
+                } else {
+                    const cloud = row.payload || {};
+                    const cloudTs = row.updated_at || cloud.updatedAt || 0;
+                    st.cloudReady = true;
+                    if (!st.isSeed && (st.updatedAt || 0) > cloudTs) {
+                        await pushToCloud();
+                        renderApp();
+                    } else {
+                        if (!st.isSeed) {
+                            try { localStorage.setItem('fleettrack_db_backup_before_cloud', JSON.stringify(buildPayload())); } catch(e) {}
+                        }
+                        if (!(cloud.isSeed === true && !st.isSeed)) applyCloudData(cloud);
+                        renderApp();
+                    }
+                }
+
+                supabase.channel('clicklife-fleet-data')
+                    .on('postgres_changes', {
+                        event: '*', schema: 'public', table: SUPABASE_TABLE,
+                        filter: `id=eq.${SUPABASE_ROW_ID}`
+                    }, (change) => {
+                        if (change.eventType === 'DELETE') return;
+                        const incoming = change.new?.payload || {};
+                        const incomingTs = change.new?.updated_at || incoming.updatedAt || 0;
+                        if (incomingTs > (window.AppState.updatedAt || 0)) {
+                            applyCloudData(incoming);
+                            renderApp();
+                        }
+                    })
+                    .subscribe((status) => {
+                        if (status === 'SUBSCRIBED') {
+                            st.cloudStatus = 'connected';
+                            st.cloudConnected = true;
+                            renderApp();
+                        }
+                    });
+            } catch (err) {
+                console.warn('Supabase connection error:', err);
+                st.cloudStatus = 'error';
+                st.cloudConnected = false;
+                renderApp();
+            }
+        }
+
+        // Called after every user change. Demo seed data is never uploaded to the cloud.
+        function saveDataLocally(fromSeed) {
+            const st = window.AppState;
+            st.isSeed = fromSeed === true;
+            st.updatedAt = Date.now();
+            try {
+                localStorage.setItem('fleettrack_db_data', JSON.stringify(buildPayload()));
+            } catch (e) {
+                console.error('Unable to save local data:', e);
+                showNotification('Could not save locally. Check browser storage permissions.', 'warning');
+            }
+            pushToCloud();
+        }
+
+        // Keep local browser data durable if the page is backgrounded or closed.
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'hidden' && window.AppState?.isAuthenticated) {
+                try { localStorage.setItem('fleettrack_db_data', JSON.stringify(buildPayload())); } catch (e) {}
+            }
+        });
+
+        function applyCloudData(c) {
+            const st = window.AppState;
+            st.companies = c.companies || [];
+            st.vehicles = c.vehicles || [];
+            st.manualStats = c.manualStats || {};
+            st.statsHistory = c.statsHistory || [];
+            st.vehicleHistory = c.vehicleHistory || [];
+            st.isSeed = false;
+            st.updatedAt = c.updatedAt || 0;
+            normalizeData();
+            localStorage.setItem('fleettrack_db_data', JSON.stringify(buildPayload()));
+        }
+
+        window.uploadDeviceDataToCloud = async function() {
+            const st = window.AppState;
+            if (st.cloudStatus !== 'connected') { alert("Supabase is not connected. Check the table and RLS setup."); return; }
+            if (!confirm("Replace the shared Supabase data with the data on THIS device? Other PCs will receive it.")) return;
+            st.cloudReady = true;
+            st.isSeed = false;
+            st.updatedAt = Date.now();
+            localStorage.setItem('fleettrack_db_data', JSON.stringify(buildPayload()));
+            await pushToCloud();
+            if (st.cloudStatus === 'connected') showNotification('This device data was uploaded to Supabase.', 'success');
+        };
+
+        window.restoreLocalBackup = function() {
+            const raw = localStorage.getItem('fleettrack_db_backup_before_cloud');
+            if (!raw) { alert("No safety copy found on this device."); return; }
+            if (!confirm("Load the data this device had before it synced with the cloud? Use 'Upload this device data to Supabase' afterwards to share it.")) return;
+            const c = JSON.parse(raw);
+            applyCloudData(c);
+            window.AppState.updatedAt = Date.now();
+            localStorage.setItem('fleettrack_db_data', JSON.stringify(buildPayload()));
+            renderApp();
+            showNotification('Safety copy restored on this device.', 'info');
+        };
+
+        function normalizeData() {
+            // Preserve the archived flag when data is loaded from localStorage or cloud.
+            // The old implementation reset every vehicle to active on each load.
+            (window.AppState.vehicles || []).forEach(v => { v.archived = Boolean(v.archived); });
+        }
+        window.normalizeData = normalizeData;
+
+        // Initialize Data
+        initializeDefaultData();
+        normalizeData();
+
+        // Check Login Session
+        const session = sessionStorage.getItem('fleettrack_session');
+        if (session === 'active') {
+            window.AppState.isAuthenticated = true;
+            window.AppState.currentUser = 'admin';
+        }
+
+        // Ensure Theme applied
+        if (window.AppState.theme === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+
+        // Expose helper functions to global window object
+        window.saveDataLocally = saveDataLocally;
+        window.renderApp = renderApp;
+
+        
+        // Status Colors Definition
+        const STATUS_CONFIG = {
+            'Signal': { bg: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800', badge: 'bg-emerald-500' },
+            'Deactivated': { bg: 'bg-slate-200 text-slate-800 dark:bg-slate-800 dark:text-slate-300 border-slate-300 dark:border-slate-700', badge: 'bg-slate-500' },
+            'Failing': { bg: 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300 border-amber-300 dark:border-amber-800', badge: 'bg-amber-500' },
+            'Dead': { bg: 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 border-rose-300 dark:border-rose-800', badge: 'bg-rose-500' },
+            'Not Renewed': { bg: 'bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300 border-purple-300 dark:border-purple-800', badge: 'bg-purple-500' },
+            'Not Activated': { bg: 'bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 border-blue-300 dark:border-blue-800', badge: 'bg-blue-500' },
+            'Non Active': { bg: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950/60 dark:text-indigo-300 border-indigo-300 dark:border-indigo-800', badge: 'bg-indigo-500' },
+            'Expired': { bg: 'bg-red-200 text-red-900 dark:bg-red-950 dark:text-red-200 border-red-400 dark:border-red-800', badge: 'bg-red-600' }
+        };
+
+        const STAT_KEYS = ['Signal', 'Deactivated', 'Failing', 'Dead', 'Not Renewed', 'Not Activated', 'Non Active', 'Expired'];
+
+        function showNotification(msg, type = 'info') {
+            window.AppState.notification = { msg, type };
+            renderApp();
+            setTimeout(() => {
+                window.AppState.notification = null;
+                renderApp();
+            }, 3500);
+        }
+        window.showNotification = showNotification;
+
+        function getCompanyStats(companyId) {
+            if (!window.AppState.manualStats[companyId]) {
+                window.AppState.manualStats[companyId] = { Signal: 0, Deactivated: 0, Failing: 0, Dead: 0, NotRenewed: 0, NotActivated: 0, NonActive: 0, Expired: 0 };
+            }
+            return window.AppState.manualStats[companyId];
+        }
+
+        function getCompanyName(id) {
+            if (id === 'ALL') return 'All Companies';
+            const comp = window.AppState.companies.find(c => c.id === id);
+            return comp ? comp.name : 'Unknown Company';
+        }
+
+
+        const CL_LOGO = (n=28) => `<svg width="${n}" height="${n}" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 2.5 27 6.6v8.2c0 6.3-4.3 11.2-11 14.7C9.3 26 5 21.100 5 14.800V6.600L16 2.500Z" fill="url(#clg)"/><path d="M10.500 20.500 16 11l5.500 9.500M12.800 17h6.400" stroke="#fff" stroke-width="2.200" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="clg" x1="5" y1="2" x2="27" y2="30"><stop stop-color="#4f8cff"/><stop offset="1" stop-color="#1d4ed8"/></linearGradient></defs></svg>`;
+        const CL_SPARK_COL = {'Signal':'#34d399','Deactivated':'#94a3b8','Failing':'#fbbf24','Dead':'#f87171','Not Renewed':'#c084fc','Not Activated':'#60a5fa','Non Active':'#818cf8','Expired':'#fb7185'};
+        function clSpark(key, val) {
+            let seed = [...key].reduce((a,c)=>a+c.charCodeAt(0),0) + val, y = 20, pts = [];
+            for (let i=0;i<24;i++){ seed=(seed*9301+49297)%233280; y+=(seed/233280-.5)*7; y=Math.max(5,Math.min(30,y)); pts.push([i*200/23,y]); }
+            const d = pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+            const c = CL_SPARK_COL[key] || '#60a5fa', id = 'sp'+key.replace(/\W/g,'');
+            return `<svg viewBox="0 0 200 34" preserveAspectRatio="none" class="cl-spark"><defs><linearGradient id="${id}" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="${c}" stop-opacity=".3"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></linearGradient></defs><path d="${d} L200 34 L0 34 Z" fill="url(#${id})"/><path d="${d}" fill="none" stroke="${c}" stroke-width="1.6" vector-effect="non-scaling-stroke"/></svg>`;
+        }
+
+        function renderLogin() {
+            return `
+            <div class="min-h-screen flex items-center justify-center bg-slate-900 p-4">
+                <div class="max-w-md w-full bg-slate-800 border border-slate-700 rounded-xl shadow-2xl p-8 text-slate-100">
+                    <div class="text-center mb-8">
+                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-brand-600 mb-4 shadow-lg">
+                            ${CL_LOGO(34)}
+                        </div>
+                        <h1 class="text-2xl font-bold tracking-tight text-white">Clicklife SecurePath</h1>
+                        <p class="text-sm text-slate-400 mt-1">Vehicle Tracking Management System</p>
+                    </div>
+
+                    <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-5">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Email</label>
+                            <div class="relative">
+                                <input type="email" id="loginUser" value="moamen@clicklife.com" autocomplete="username" required class="w-full pl-3 pr-4 py-2.5 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-white placeholder-slate-500 text-sm">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Password</label>
+                            <div class="relative">
+                                <input type="password" id="loginPass" value="moamen123A" autocomplete="current-password" required class="w-full pl-3 pr-4 py-2.5 bg-slate-900 border border-slate-700 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 text-white placeholder-slate-500 text-sm">
+                            </div>
+                        </div>
+
+                        <div id="loginError" class="hidden text-sm text-rose-400 bg-rose-950/50 border border-rose-800 p-2.5 rounded-lg text-center"></div>
+
+                        <button type="submit" class="w-full py-3 px-4 bg-brand-600 hover:bg-brand-500 font-semibold text-white rounded-lg shadow-md hover:shadow-lg transition duration-150 text-sm">
+                            Sign In to System
+                        </button>
+
+                        <div class="bg-slate-900/60 p-3 rounded-lg border border-slate-700/50 text-xs text-slate-400 text-center">
+                            Account credentials are pre-filled for this private system
+                        </div>
+                    </form>
+                </div>
+            </div>
+            `;
+        }
+
+        window.handleLogin = function(e) {
+            e.preventDefault();
+            const u = document.getElementById('loginUser').value;
+            const p = document.getElementById('loginPass').value;
+            
+            if (u === LOGIN_EMAIL && p === LOGIN_PASSWORD) {
+                window.AppState.isAuthenticated = true;
+                window.AppState.currentUser = LOGIN_EMAIL;
+                sessionStorage.setItem('fleettrack_session', 'active');
+                renderApp();
+            } else {
+                const err = document.getElementById('loginError');
+                err.textContent = 'Invalid username or password';
+                err.classList.remove('hidden');
+            }
+        };
+
+        window.handleLogout = function() {
+            window.AppState.isAuthenticated = false;
+            window.AppState.currentUser = null;
+            sessionStorage.removeItem('fleettrack_session');
+            renderApp();
+        };
+
+        window.toggleTheme = function() {
+            window.AppState.theme = window.AppState.theme === 'light' ? 'dark' : 'light';
+            localStorage.setItem('fleettrack_theme', window.AppState.theme);
+            if (window.AppState.theme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+            renderApp();
+        };
+
+        window.switchTab = function(tabName) {
+            const st = window.AppState;
+            if (st.activeTab === tabName) return;
+            clearTimeout(window._tabTimer);
+            st.activeTab = tabName;
+            st.loading = true;
+            window.scrollTo({ top: 0 });
+            renderApp();
+            window._tabTimer = setTimeout(() => {
+                st.loading = false;
+                st._pageAnim = true;
+                renderApp();
+            }, 450);
+        };
+
+        window.selectCompanyFilter = function(companyId) {
+            window.AppState.selectedCompanyId = companyId;
+            window.AppState.filters.companyId = companyId;
+            renderApp();
+        };
+
+
+        const CL_TABS = [['dashboard','Dashboard'],['companies','Companies'],['cars','Vehicles'],['installation','Installation'],['reports','Reports'],['backup','Backup']];
+        function renderNavLink(tabKey, label) {
+            const on = window.AppState.activeTab === tabKey;
+            return `<button onclick="switchTab('${tabKey}')" aria-label="${label}" ${on ? 'aria-current="page"' : ''} class="cl-nav ${on ? 'on' : ''}"><span>${label}</span></button>`;
+        }
+        function renderNavbar() {
+            const dark = window.AppState.theme === 'dark';
+            return `
+            <header class="cl-bar">
+                <div class="cl-brand" onclick="switchTab('dashboard')" title="Clicklife SecurePath">${CL_LOGO(28)}<span>SecurePath</span></div>
+                <nav class="cl-tabs" aria-label="Primary navigation">${CL_TABS.map(t => renderNavLink(t[0], t[1])).join('')}</nav>
+                <div class="cl-end" aria-label="Account actions">
+                    <span class="cl-divider" aria-hidden="true"></span>
+                    ${renderNavLink('settings','Settings')}
+                    <button onclick="toggleTheme()" aria-label="Toggle theme" class="cl-nav cl-action"><span>${dark ? 'Light' : 'Dark'}</span></button>
+                    <button onclick="handleLogout()" aria-label="Log out" class="cl-nav cl-action danger"><span>Log out</span></button>
+                </div>
+            </header>`;
+        }
+        function renderTopbar() {
+            const st = window.AppState;
+            return `
+            <div class="cl-top">
+                <div><h1 class="cl-title">${(CL_TABS.find(t => t[0] === st.activeTab) || (st.activeTab === 'settings' ? [0,'Settings'] : [0,'Clicklife SecurePath']))[1]}</h1><p class="cl-sub">${getCompanyName(st.selectedCompanyId)}</p></div>
+                <select onchange="selectCompanyFilter(this.value)" class="cl-switch" aria-label="Company">
+                    <option value="ALL" ${st.selectedCompanyId === 'ALL' ? 'selected' : ''}>All Companies</option>
+                    ${st.companies.map(c => `<option value="${c.id}" ${st.selectedCompanyId === c.id ? 'selected' : ''}>${c.name}</option>`).join('')}
+                </select>
+            </div>`;
+        }
+
+        function renderDashboardView() {
+            const compId = window.AppState.selectedCompanyId;
+            const compName = getCompanyName(compId);
+            const stats = getCompanyStats(compId);
+
+            // Calculate total sum of manual stats
+            const total = STAT_KEYS.reduce((sum, key) => sum + (stats[key] || 0), 0);
+
+            return `
+            <div class="space-y-6">
+                <!-- Page Banner -->
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-brand-100 text-brand-800 dark:bg-brand-950 dark:text-brand-300">
+                                Manual Statistics Mode
+                            </span>
+                            <span class="text-xs text-slate-500 dark:text-slate-400">Company: <strong>${compName}</strong></span>
+                        </div>
+                        <h2 class="text-2xl font-bold mt-1">Overall Statistics Dashboard</h2>
+                    </div>
+
+                    <div class="flex items-center space-x-2">
+                        <button onclick="switchTab('cars')" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold transition">
+                            View Vehicle List
+                        </button>
+                        <button onclick="triggerQuickPDF()" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg text-xs font-semibold transition shadow-sm">
+                            Quick PDF Report
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 1. Statistics Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    ${STAT_KEYS.map(key => {
+                        const val = stats[key] || 0;
+                        const cfg = STATUS_CONFIG[key];
+                        return `
+                        <div class="bg-white dark:bg-slate-800 rounded-xl p-5 border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow transition relative flex flex-col justify-between">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">${key}</span>
+                                <span class="w-3 h-3 rounded-full ${cfg.badge}"></span>
+                            </div>
+                            ${clSpark(key,val)}
+                            <div class="my-3 flex items-baseline justify-between">
+                                <span class="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">${val}</span>
+                                <div class="flex items-center space-x-1">
+                                    <button onclick="promptStatChange('${compId}', '${key}', ${val}, -1)" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-rose-100 hover:text-rose-700 dark:bg-slate-700 dark:hover:bg-rose-900/60 dark:hover:text-rose-300 font-bold text-slate-700 dark:text-slate-200 flex items-center justify-center transition" title="Decrease Count">&minus;</button>
+                                    <button onclick="promptStatChange('${compId}', '${key}', ${val}, 1)" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-emerald-100 hover:text-emerald-700 dark:bg-slate-700 dark:hover:bg-emerald-900/60 dark:hover:text-emerald-300 font-bold text-slate-700 dark:text-slate-200 flex items-center justify-center transition" title="Increase Count">+</button>
+                                </div>
+                            </div>
+                            <div class="text-[11px] text-slate-400">Manual counter</div>
+                        </div>
+                        `;
+                    }).join('')}
+
+                    <!-- Total Card -->
+                    <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-xl p-5 border border-slate-700 shadow-md flex flex-col justify-between">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-slate-300">Total Count</span>
+                                                    </div>
+                        <div class="my-3">
+                            <span class="text-4xl font-black text-white tracking-tight">${total}</span>
+                        </div>
+                        <div class="text-[11px] text-slate-400">Sum of all active stat categories</div>
+                    </div>
+                </div>
+
+            </div>
+            `;
+        }
+
+
+        window.promptStatChange = function(companyId, key, currentVal, changeDelta) {
+            window.AppState.modal = { type: 'STAT_REASON', companyId, key, currentVal, newVal: Math.max(0, currentVal + changeDelta), changeDelta: 0 };
+            window.AppState.modal.changeDelta = window.AppState.modal.newVal - currentVal;
+            window.AppState.modal.dir = changeDelta < 0 ? -1 : 1;
+            window.AppState.modal.amount = Math.abs(changeDelta) || 1;
+            renderApp();
+        };
+
+        function refreshStatModal() {
+            const m = window.AppState.modal;
+            m.newVal = Math.max(0, m.currentVal + m.dir * m.amount);
+            m.changeDelta = m.newVal - m.currentVal;
+            const set = (id, fn) => { const el = document.getElementById(id); if (el) fn(el); };
+            set('statNewVal', el => el.textContent = m.newVal);
+            set('statChangeVal', el => { el.textContent = (m.changeDelta > 0 ? '+' : '') + m.changeDelta; el.className = m.dir > 0 ? 'add' : 'sub'; });
+            set('statDirAdd', el => el.className = m.dir > 0 ? 'on add' : '');
+            set('statDirSub', el => el.className = m.dir < 0 ? 'on sub' : '');
+            set('statAmountInput', el => { if (document.activeElement !== el) el.value = m.amount; });
+        }
+        window.setStatDir = function(d) { window.AppState.modal.dir = d; refreshStatModal(); };
+        window.setStatAmount = function(n) { window.AppState.modal.amount = n; refreshStatModal(); };
+        window.onStatAmountInput = function(v) { window.AppState.modal.amount = Math.max(0, parseInt(v, 10) || 0); refreshStatModal(); };
+
+        window.saveStatChange = function(e) {
+            e.preventDefault();
+            const modal = window.AppState.modal;
+            if (modal.changeDelta === 0) { alert("Enter an amount greater than zero."); return; }
+
+            const compStats = getCompanyStats(modal.companyId);
+            compStats[modal.key] = modal.newVal;
+            saveDataLocally();
+
+            window.AppState.modal = null;
+            showNotification(`Updated ${modal.key}: ${modal.currentVal} to ${modal.newVal}`, 'success');
+        };
+
+
+        function renderCompaniesView() {
+            return `
+            <div class="space-y-6">
+                <div class="flex items-center justify-between bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <div>
+                        <h2 class="text-2xl font-bold">Company Management</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Manage multiple client companies and fleets</p>
+                    </div>
+                    <button onclick="openAddCompanyModal()" class="px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-lg text-xs shadow transition flex items-center space-x-1.5">
+                                                <span>Add New Company</span>
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    ${window.AppState.companies.map(comp => {
+                        const compVehicles = window.AppState.vehicles.filter(v => v.companyId === comp.id && !v.archived);
+                        return `
+                        <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm hover:shadow transition flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-start justify-between">
+                                    <div class="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 font-bold text-lg mb-4">
+                                        ${(comp.name || "?").charAt(0).toUpperCase()}
+                                    </div>
+                                    <span class="px-2.5 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-md text-xs font-mono">
+                                        ${comp.regId || 'N/A'}
+                                    </span>
+                                </div>
+                                <h3 class="text-lg font-bold text-slate-900 dark:text-white">${comp.name}</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">${comp.contact || 'No contact specified'}</p>
+                                <p class="text-xs text-slate-600 dark:text-slate-300 mt-3 line-clamp-2">${comp.notes || 'No notes'}</p>
+                                
+                                <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-xs text-slate-500">
+                                    <span>Active Vehicles:</span>
+                                    <span class="font-bold text-slate-900 dark:text-white text-sm">${compVehicles.length}</span>
+                                </div>
+                            </div>
+
+                            <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between space-x-2">
+                                <button onclick="selectCompanyFilter('${comp.id}'); switchTab('cars');" class="flex-1 py-2 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 rounded-lg text-xs font-semibold transition text-center">
+                                    View Cars
+                                </button>
+                                <button onclick="confirmDeleteCompany('${comp.id}', '${comp.name}')" class="py-2 px-3 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/60 rounded-lg text-xs font-semibold transition" title="Delete Company">
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>
+            `;
+        }
+
+        window.openAddCompanyModal = function() {
+            window.AppState.modal = { type: 'ADD_COMPANY' };
+            renderApp();
+        };
+
+        window.handleAddCompany = function(e) {
+            e.preventDefault();
+            const name = document.getElementById('compName').value.trim();
+            const regId = document.getElementById('compRegId').value.trim();
+            const contact = document.getElementById('compContact').value.trim();
+            const notes = document.getElementById('compNotes').value.trim();
+
+            if (!name) return;
+
+            const newComp = {
+                id: 'comp_' + Date.now(),
+                name,
+                regId,
+                contact,
+                notes
+            };
+
+            window.AppState.companies.push(newComp);
+            // initialize stats
+            window.AppState.manualStats[newComp.id] = { Signal: 0, Deactivated: 0, Failing: 0, Dead: 0, NotRenewed: 0, NotActivated: 0, NonActive: 0, Expired: 0 };
+            saveDataLocally();
+
+            window.AppState.modal = null;
+            showNotification(`Company "${name}" created successfully.`, 'success');
+        };
+
+        window.confirmDeleteCompany = function(id, name) {
+            window.AppState.modal = {
+                type: 'DELETE_COMPANY_CONFIRM',
+                companyId: id,
+                companyName: name
+            };
+            renderApp();
+        };
+
+        window.executeDeleteCompany = function(id) {
+            // Delete company, its vehicles, manual stats, and stats history
+            window.AppState.companies = window.AppState.companies.filter(c => c.id !== id);
+            window.AppState.vehicles = window.AppState.vehicles.filter(v => v.companyId !== id);
+            delete window.AppState.manualStats[id];
+
+            if (window.AppState.selectedCompanyId === id) {
+                window.AppState.selectedCompanyId = 'ALL';
+            }
+
+            saveDataLocally();
+            window.AppState.modal = null;
+            showNotification('Company and all associated data deleted permanently.', 'warning');
+        };
+
+
+        function renderCarsView(isArchivedMode = false) {
+            const f = window.AppState.filters;
+            
+            // Filter Vehicles Logic
+            let list = window.AppState.vehicles.filter(v => Boolean(v.archived) === isArchivedMode);
+
+            if (f.companyId !== 'ALL') {
+                list = list.filter(v => v.companyId === f.companyId);
+            }
+            if (f.status !== 'ALL') {
+                list = list.filter(v => v.status === f.status);
+            }
+            if (f.installed !== 'ALL') {
+                list = list.filter(v => v.installed === f.installed);
+            }
+            if (f.installationStatus !== 'ALL') {
+                list = list.filter(v => v.installationStatus === f.installationStatus);
+            }
+
+            // Single Search Box searching across Plate, VIN, Device, SIM
+            if (f.search.trim()) {
+                const q = f.search.trim().toLowerCase();
+                list = list.filter(v => 
+                    (v.plateNumber && v.plateNumber.toLowerCase().includes(q)) ||
+                    (v.vin && v.vin.toLowerCase().includes(q)) ||
+                    (v.deviceNumber && v.deviceNumber.toLowerCase().includes(q)) ||
+                    (v.simCardNumber && v.simCardNumber.toLowerCase().includes(q))
+                );
+            }
+
+            return `
+            <div class="space-y-6">
+                <!-- Header Toolbar -->
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <div>
+                        <h2 class="text-2xl font-bold">${isArchivedMode ? 'Archived Vehicles' : 'Vehicle Fleet Management'}</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                            ${isArchivedMode ? 'Historical archived vehicle records' : 'Manage active tracking devices, SIM cards, and vehicles'}
+                        </p>
+                    </div>
+
+                    ${true ? `
+                    <button onclick="openAddVehicleModal()" class="px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-lg text-xs shadow transition flex items-center space-x-2">
+                                                <span>Add New Vehicle</span>
+                    </button>
+                    ` : ''}
+                </div>
+
+                <!-- Search & Filters Bar -->
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
+                        <!-- Single Unified Search Box -->
+                        <div class="lg:col-span-2 relative">
+                            <input type="text" value="${f.search}" oninput="updateSearchFilter(this.value)" placeholder="Search Plate, VIN, Device #, or SIM #" class="w-full pl-3 pr-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-brand-500">
+                        </div>
+
+                        <!-- Company Filter -->
+                        <div>
+                            <select onchange="updateFilter('companyId', this.value)" class="w-full py-2 px-3 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg font-medium">
+                                <option value="ALL" ${f.companyId === 'ALL' ? 'selected' : ''}>All Companies</option>
+                                ${window.AppState.companies.map(c => `<option value="${c.id}" ${f.companyId === c.id ? 'selected' : ''}>${c.name}</option>`).join('')}
+                            </select>
+                        </div>
+
+                        <!-- Vehicle Status Filter -->
+                        <div>
+                            <select onchange="updateFilter('status', this.value)" class="w-full py-2 px-3 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg font-medium">
+                                <option value="ALL" ${f.status === 'ALL' ? 'selected' : ''}>Status: All</option>
+                                ${STAT_KEYS.map(s => `<option value="${s}" ${f.status === s ? 'selected' : ''}>${s}</option>`).join('')}
+                            </select>
+                        </div>
+
+                        <!-- Installed Filter -->
+                        <div>
+                            <select onchange="updateFilter('installed', this.value)" class="w-full py-2 px-3 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg font-medium">
+                                <option value="ALL" ${f.installed === 'ALL' ? 'selected' : ''}>Installed: All</option>
+                                <option value="Yes" ${f.installed === 'Yes' ? 'selected' : ''}>Installed: Yes</option>
+                                <option value="No" ${f.installed === 'No' ? 'selected' : ''}>Installed: No</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vehicles Table -->
+                <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-100/80 dark:bg-slate-900/60 text-slate-500 dark:text-slate-400 uppercase text-[11px] tracking-wider font-semibold border-b border-slate-200 dark:border-slate-700">
+                                    <th class="py-3.5 px-4">Company</th>
+                                    <th class="py-3.5 px-4">Plate Number</th>
+                                    <th class="py-3.5 px-4">VIN / Chassis</th>
+                                    <th class="py-3.5 px-4">Device Number</th>
+                                    <th class="py-3.5 px-4">SIM Card Number</th>
+                                    <th class="py-3.5 px-4">Status</th>
+                                    <th class="py-3.5 px-4">Installed</th>
+                                    <th class="py-3.5 px-4">Installation Status</th>
+                                    <th class="py-3.5 px-4 text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200 dark:divide-slate-700 text-xs">
+                                ${list.length === 0 ? `
+                                <tr>
+                                    <td colspan="9" class="py-12 text-center text-slate-400">
+                                                                                No vehicles found matching criteria.
+                                    </td>
+                                </tr>
+                                ` : list.map(v => {
+                                    const compName = getCompanyName(v.companyId);
+                                    const cfg = STATUS_CONFIG[v.status] || { bg: 'bg-slate-100 text-slate-800' };
+                                    return `
+                                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
+                                        <td class="py-3 px-4 font-semibold text-slate-700 dark:text-slate-300 max-w-[140px] truncate" title="${compName}">${compName}</td>
+                                        <td class="py-3 px-4 font-bold text-brand-700 dark:text-brand-300 font-mono">${v.plateNumber}</td>
+                                        <td class="py-3 px-4 font-mono text-slate-600 dark:text-slate-400">${v.vin}</td>
+                                        <td class="py-3 px-4 font-mono">${v.deviceNumber || '<span class="text-slate-400">—</span>'}</td>
+                                        <td class="py-3 px-4 font-mono">${v.simCardNumber || '<span class="text-slate-400">—</span>'}</td>
+                                        <td class="py-3 px-4">
+                                            <span class="px-2 py-0.5 rounded text-[11px] font-semibold border ${cfg.bg}">
+                                                ${v.status}
+                                            </span>
+                                        </td>
+                                        <td class="py-3 px-4 font-medium">${v.installed === 'Yes' ? '<span class="text-emerald-600 font-bold">Yes</span>' : '<span class="text-rose-500 font-bold">No</span>'}</td>
+                                        <td class="py-3 px-4">${v.installationStatus}</td>
+                                        <td class="py-3 px-4 text-center">
+                                            <div class="flex items-center justify-center space-x-1">
+                                                <button onclick="viewVehicleDetail('${v.id}')" class="p-1.5 rounded bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-600 dark:text-slate-300 transition" title="View Details">View
+                                                </button>
+                                                <button onclick="openEditVehicleModal('${v.id}')" class="p-1.5 rounded bg-brand-50 text-brand-600 dark:bg-brand-950/60 dark:text-brand-300 hover:bg-brand-100 transition" title="Edit Vehicle">Edit
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            `;
+        }
+
+        window.updateSearchFilter = function(val) {
+            window.AppState.filters.search = val;
+            renderApp();
+        };
+
+        window.updateFilter = function(key, val) {
+            window.AppState.filters[key] = val;
+            renderApp();
+        };
+
+
+        window.openAddVehicleModal = function() {
+            window.AppState.modal = { type: 'ADD_VEHICLE' };
+            renderApp();
+        };
+
+        window.handleAddVehicle = function(e, forceAdd = false) {
+            if (e) e.preventDefault();
+            const companyId = document.getElementById('vehCompId').value;
+            const plateNumber = document.getElementById('vehPlate').value.trim();
+            const vin = document.getElementById('vehVin').value.trim();
+            const deviceNumber = document.getElementById('vehDevice').value.trim();
+            const simCardNumber = document.getElementById('vehSim').value.trim();
+            const status = document.getElementById('vehStatus').value;
+            const installed = document.getElementById('vehInstalled').value;
+            const installationStatus = document.getElementById('vehInstStatus').value;
+            const notes = document.getElementById('vehNotes').value.trim();
+
+            if (!companyId || !plateNumber || !vin) {
+                alert("Company, Plate Number, and VIN are required.");
+                return;
+            }
+
+            // Check Duplicate Warning
+            if (!forceAdd) {
+                const existing = window.AppState.vehicles.find(v => 
+                    v.plateNumber.toLowerCase() === plateNumber.toLowerCase() || 
+                    v.vin.toLowerCase() === vin.toLowerCase()
+                );
+                if (existing) {
+                    window.AppState.modal = {
+                        type: 'DUPLICATE_WARNING',
+                        existing,
+                        newData: { companyId, plateNumber, vin, deviceNumber, simCardNumber, status, installed, installationStatus, notes }
+                    };
+                    renderApp();
+                    return;
+                }
+            }
+
+            const newVeh = {
+                id: 'v_' + Date.now(),
+                companyId,
+                plateNumber,
+                vin,
+                deviceNumber,
+                simCardNumber,
+                correctDeviceNumber: deviceNumber,
+                correctSimCardNumber: simCardNumber,
+                status,
+                installed,
+                installationStatus,
+                notes,
+                archived: false,
+                createdAt: new Date().toISOString()
+            };
+
+            window.AppState.vehicles.unshift(newVeh);
+            saveDataLocally();
+
+            window.AppState.modal = null;
+            showNotification(`Vehicle ${plateNumber} added successfully.`, 'success');
+        };
+
+        window.openEditVehicleModal = function(vehicleId) {
+            const v = window.AppState.vehicles.find(item => item.id === vehicleId);
+            if (!v) return;
+            window.AppState.modal = {
+                type: 'EDIT_VEHICLE',
+                vehicle: { ...v }
+            };
+            renderApp();
+        };
+
+        window.handleEditVehicle = function(e) {
+            e.preventDefault();
+            const modal = window.AppState.modal;
+            const v = modal.vehicle;
+
+            const newCompId = document.getElementById('editVehCompId').value;
+            const newPlate = document.getElementById('editVehPlate').value.trim();
+            const newVin = document.getElementById('editVehVin').value.trim();
+            const newDevice = document.getElementById('editVehDevice').value.trim();
+            const newSim = document.getElementById('editVehSim').value.trim();
+            const newCorrectDevice = document.getElementById('editVehCorrectDevice').value.trim();
+            const newCorrectSim = document.getElementById('editVehCorrectSim').value.trim();
+            const newStatus = document.getElementById('editVehStatus').value;
+            const newInstalled = document.getElementById('editVehInstalled').value;
+            const newInstStatus = document.getElementById('editVehInstStatus').value;
+            const newNotes = document.getElementById('editVehNotes').value.trim();
+            const reason = document.getElementById('editVehReason').value.trim();
+
+            const target = window.AppState.vehicles.find(item => item.id === v.id);
+            if (!target) return;
+
+            // Audit changes
+            const now = new Date();
+            const changes = [];
+
+            if (target.deviceNumber !== newDevice) changes.push({ field: 'Device Number', old: target.deviceNumber, new: newDevice });
+            if (target.simCardNumber !== newSim) changes.push({ field: 'SIM Card Number', old: target.simCardNumber, new: newSim });
+            if (target.plateNumber !== newPlate) changes.push({ field: 'Plate Number', old: target.plateNumber, new: newPlate });
+            if (target.vin !== newVin) changes.push({ field: 'VIN / Chassis', old: target.vin, new: newVin });
+            if (target.status !== newStatus) changes.push({ field: 'Status', old: target.status, new: newStatus });
+            if (target.installed !== newInstalled) changes.push({ field: 'Installed', old: target.installed, new: newInstalled });
+            if (target.installationStatus !== newInstStatus) changes.push({ field: 'Installation Status', old: target.installationStatus, new: newInstStatus });
+
+            if (changes.length > 0 && !reason) {
+                alert("Please provide a reason for editing key vehicle details.");
+                return;
+            }
+
+            // Log vehicle histories
+            changes.forEach(ch => {
+                window.AppState.vehicleHistory.unshift({
+                    id: 'vh_' + Date.now() + Math.random().toString().slice(2,5),
+                    vehicleId: target.id,
+                    plateNumber: newPlate,
+                    fieldChanged: ch.field,
+                    oldValue: ch.old || 'None',
+                    newValue: ch.new || 'None',
+                    reason: reason || 'Information update',
+                    date: now.toISOString().split('T')[0],
+                    time: now.toTimeString().split(' ')[0],
+                    user: window.AppState.currentUser || 'admin'
+                });
+            });
+
+            // Update Vehicle
+            target.companyId = newCompId;
+            target.plateNumber = newPlate;
+            target.vin = newVin;
+            target.deviceNumber = newDevice;
+            target.simCardNumber = newSim;
+            target.correctDeviceNumber = newCorrectDevice;
+            target.correctSimCardNumber = newCorrectSim;
+            target.status = newStatus;
+            target.installed = newInstalled;
+            target.installationStatus = newInstStatus;
+            target.notes = newNotes;
+
+            saveDataLocally();
+            window.AppState.modal = null;
+            showNotification(`Vehicle ${newPlate} updated successfully.`, 'success');
+        };
+
+        window.viewVehicleDetail = function(id) {
+            const v = window.AppState.vehicles.find(item => item.id === id);
+            if (!v) return;
+            const histories = window.AppState.vehicleHistory.filter(vh => vh.vehicleId === id);
+            window.AppState.modal = {
+                type: 'VIEW_VEHICLE_DETAIL',
+                vehicle: v,
+                histories
+            };
+            renderApp();
+        };
+
+
+        function renderInstallationView() {
+            const installedCars = window.AppState.vehicles.filter(v => !v.archived && v.installed === 'Yes');
+            const notInstalledCars = window.AppState.vehicles.filter(v => !v.archived && v.installed === 'No');
+
+            return `
+            <div class="space-y-6">
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <h2 class="text-2xl font-bold">Installation Status & Hardware Corrections</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                        Track device/SIM installation workflow and verify hardware correctness (Wrong vs Correct Data).
+                    </p>
+                </div>
+
+                <!-- Hardware Data Accuracy Overview -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-slate-800 dark:text-slate-100 flex items-center space-x-2">
+                                                                <span>Installed Tracking Hardware (${installedCars.length})</span>
+                            </h3>
+                        </div>
+                        <div class="space-y-2 max-h-80 overflow-y-auto pr-1">
+                            ${installedCars.map(v => `
+                            <div class="p-3 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 text-xs flex items-center justify-between">
+                                <div>
+                                    <div class="font-bold text-brand-600 dark:text-brand-400 font-mono">${v.plateNumber}</div>
+                                    <div class="text-[11px] text-slate-500">Device: ${v.deviceNumber || 'N/A'}</div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-semibold text-[10px]">
+                                        ${v.installationStatus}
+                                    </span>
+                                </div>
+                            </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-slate-800 dark:text-slate-100 flex items-center space-x-2">
+                                                                <span>Pending Installation (${notInstalledCars.length})</span>
+                            </h3>
+                        </div>
+                        <div class="space-y-2 max-h-80 overflow-y-auto pr-1">
+                            ${notInstalledCars.map(v => `
+                            <div class="p-3 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 text-xs flex items-center justify-between">
+                                <div>
+                                    <div class="font-bold text-slate-800 dark:text-slate-200 font-mono">${v.plateNumber}</div>
+                                    <div class="text-[11px] text-slate-500">VIN: ${v.vin}</div>
+                                </div>
+                                <button onclick="openEditVehicleModal('${v.id}')" class="px-2.5 py-1 bg-brand-600 hover:bg-brand-500 text-white rounded text-[11px] font-semibold">
+                                    Update Status
+                                </button>
+                            </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            `;
+        }
+
+
+        function renderReportsView() {
+            return `
+            <div class="space-y-6">
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <h2 class="text-2xl font-bold">Reports & Data Exports</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Export rich Excel workbooks or generate formatted PDF summary reports</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Excel Export Card -->
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-lg font-bold">Excel Export (.xlsx)</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Export full structured datasets using SheetJS standard format.</p>
+
+                            <div class="mt-4 space-y-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 mb-1">Company Dataset</label>
+                                    <select id="excelCompany" class="w-full py-2 px-3 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg">
+                                        <option value="ALL">All Companies</option>
+                                        ${window.AppState.companies.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-500 mb-1">Export Content</label>
+                                    <select id="excelDataset" class="w-full py-2 px-3 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg">
+                                        <option value="carNumbers">Car Numbers</option>
+                                        <option value="deadCars">Dead Cars</option>
+                                        <option value="onlineCars">Online Cars</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="triggerExcelExport()" class="mt-6 py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold transition flex items-center justify-center space-x-2">
+                                                        <span>Export Excel File</span>
+                        </button>
+                    </div>
+
+                    <!-- PDF Report Card -->
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-lg font-bold">Custom PDF Report Generator</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Generate polished PDF documents with jsPDF + autoTable.</p>
+
+                            <div class="mt-4 space-y-2">
+                                <label class="flex items-center space-x-2 text-xs">
+                                    <input type="checkbox" id="pdfIncludeStats" checked class="rounded text-brand-600 focus:ring-brand-500">
+                                    <span>Include Manual Dashboard Statistics</span>
+                                </label>
+                                <label class="flex items-center space-x-2 text-xs">
+                                    <input type="checkbox" id="pdfIncludeVehicles" checked class="rounded text-brand-600 focus:ring-brand-500">
+                                    <span>Include Active Vehicles List</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="mt-6 flex items-center space-x-2">
+                            <button onclick="triggerQuickPDF()" class="flex-1 py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-semibold transition text-center">
+                                Quick Report
+                            </button>
+                            <button onclick="triggerCustomPDF()" class="flex-1 py-2.5 px-3 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-xs font-semibold transition text-center">
+                                Custom PDF
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            `;
+        }
+
+        window.triggerExcelExport = function() {
+            const compId = document.getElementById('excelCompany').value;
+            const datasetKey = document.getElementById('excelDataset').value;
+
+            let list = window.AppState.vehicles.slice();
+            if (compId !== 'ALL') list = list.filter(v => v.companyId === compId);
+            if (datasetKey === 'deadCars') list = list.filter(v => v.status === 'Dead');
+            if (datasetKey === 'onlineCars') list = list.filter(v => v.status === 'Signal');
+
+            let dataToExport;
+            if (datasetKey === 'carNumbers') {
+                dataToExport = list.map(v => ({
+                    'Company': getCompanyName(v.companyId),
+                    'Plate Number': v.plateNumber
+                }));
+            } else {
+                dataToExport = list.map(v => ({
+                    'Company': getCompanyName(v.companyId),
+                    'Plate Number': v.plateNumber,
+                    'VIN / Chassis': v.vin,
+                    'Device Number': v.deviceNumber,
+                    'SIM Card Number': v.simCardNumber,
+                    'Status': v.status,
+                    'Installed': v.installed,
+                    'Installation Status': v.installationStatus,
+                    'Notes': v.notes || ''
+                }));
+            }
+
+            if (dataToExport.length === 0) {
+                alert("No records available to export for selected options.");
+                return;
+            }
+
+            const fileName = `ClicklifeSecurePath_${datasetKey}_${Date.now()}.xlsx`;
+            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "FleetReport");
+            XLSX.writeFile(workbook, fileName);
+            showNotification(`Excel exported: ${fileName}`, 'success');
+        };
+
+        window.triggerQuickPDF = function() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const compName = getCompanyName(window.AppState.selectedCompanyId);
+            const stats = getCompanyStats(window.AppState.selectedCompanyId);
+
+            doc.setFontSize(18);
+            doc.text("Clicklife SecurePath - Overall Statistics Report", 14, 20);
+
+            doc.setFontSize(10);
+            doc.setTextColor(100);
+            doc.text(`Company: ${compName}`, 14, 28);
+            doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 34);
+
+            const tableRows = STAT_KEYS.map(k => [k, stats[k] || 0]);
+            const total = STAT_KEYS.reduce((s, k) => s + (stats[k] || 0), 0);
+            tableRows.push(['Total Vehicles Count', total]);
+
+            doc.autoTable({
+                startY: 40,
+                head: [['Status Category', 'Manual Count']],
+                body: tableRows,
+                theme: 'striped',
+                headStyles: { fillColor: [2, 132, 199] }
+            });
+
+            doc.save(`QuickReport_${Date.now()}.pdf`);
+            showNotification("Quick PDF downloaded.", 'success');
+        };
+
+        window.triggerCustomPDF = function() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const compName = getCompanyName(window.AppState.selectedCompanyId);
+
+            const includeStats = document.getElementById('pdfIncludeStats')?.checked;
+            const includeVehicles = document.getElementById('pdfIncludeVehicles')?.checked;
+
+            doc.setFontSize(18);
+            doc.text("Clicklife SecurePath - Custom System Report", 14, 20);
+
+            doc.setFontSize(10);
+            doc.setTextColor(100);
+            doc.text(`Company Scope: ${compName}`, 14, 28);
+            doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 34);
+
+            let currentY = 40;
+
+            if (includeStats) {
+                const stats = getCompanyStats(window.AppState.selectedCompanyId);
+                const tableRows = STAT_KEYS.map(k => [k, stats[k] || 0]);
+                
+                doc.setFontSize(12);
+                doc.setTextColor(0);
+                doc.text("Manual Dashboard Statistics", 14, currentY);
+
+                doc.autoTable({
+                    startY: currentY + 4,
+                    head: [['Status Category', 'Count']],
+                    body: tableRows,
+                    theme: 'grid',
+                    headStyles: { fillColor: [15, 23, 42] }
+                });
+
+                currentY = doc.lastAutoTable.finalY + 12;
+            }
+
+            if (includeVehicles) {
+                let list = window.AppState.vehicles.filter(v => !v.archived);
+                if (window.AppState.selectedCompanyId !== 'ALL') {
+                    list = list.filter(v => v.companyId === window.AppState.selectedCompanyId);
+                }
+
+                doc.setFontSize(12);
+                doc.setTextColor(0);
+                doc.text(`Active Vehicles List (${list.length})`, 14, currentY);
+
+                const vRows = list.map(v => [
+                    v.plateNumber,
+                    v.vin,
+                    v.deviceNumber || '—',
+                    v.simCardNumber || '—',
+                    v.status,
+                    v.installed
+                ]);
+
+                doc.autoTable({
+                    startY: currentY + 4,
+                    head: [['Plate #', 'VIN / Chassis', 'Device #', 'SIM #', 'Status', 'Installed']],
+                    body: vRows,
+                    theme: 'striped',
+                    headStyles: { fillColor: [3, 105, 161] }
+                });
+
+                currentY = doc.lastAutoTable.finalY + 12;
+            }
+
+            doc.save(`CustomReport_${Date.now()}.pdf`);
+            showNotification("Custom PDF generated.", 'success');
+        };
+
+
+        function renderBackupView() {
+            return `
+            <div class="space-y-6">
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <h2 class="text-2xl font-bold">Manual Backup & System Restore</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Export a complete system snapshot JSON file or restore from a previous backup</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Backup Card -->
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-lg font-bold">Download Full System Backup</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
+                                Generates 1 single file containing all companies, vehicles, manual statistics, and vehicle change histories.
+                            </p>
+                        </div>
+
+                        <button onclick="downloadBackupJSON()" class="mt-8 py-3 px-4 bg-brand-600 hover:bg-brand-500 text-white rounded-lg text-xs font-semibold transition flex items-center justify-center space-x-2">
+                                                        <span>Backup Now</span>
+                        </button>
+                    </div>
+
+                    <!-- Restore Card -->
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-lg font-bold">Restore System From Backup</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
+                                Upload a valid JSON backup file. You will preview the data before confirming restoration.
+                            </p>
+
+                            <input type="file" id="restoreFileInput" accept=".json" class="mt-4 block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 dark:file:bg-purple-950 dark:file:text-purple-300">
+                        </div>
+
+                        <button onclick="handleRestorePreview()" class="mt-8 py-3 px-4 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-semibold transition flex items-center justify-center space-x-2">
+                                                        <span>Preview & Restore</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            `;
+        }
+
+        window.downloadBackupJSON = function() {
+            const backupObj = {
+                version: '1.0',
+                backupDate: new Date().toISOString(),
+                companies: window.AppState.companies,
+                vehicles: window.AppState.vehicles,
+                manualStats: window.AppState.manualStats,
+                statsHistory: window.AppState.statsHistory,
+                vehicleHistory: window.AppState.vehicleHistory
+            };
+
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupObj, null, 2));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", `ClicklifeSecurePath_Backup_${Date.now()}.json`);
+            document.body.appendChild(dlAnchor);
+            dlAnchor.click();
+            dlAnchor.remove();
+
+            showNotification("Backup file generated and downloaded.", 'success');
+        };
+
+        window.handleRestorePreview = function() {
+            const fileInput = document.getElementById('restoreFileInput');
+            if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+                alert("Please select a JSON backup file first.");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    window.AppState.modal = {
+                        type: 'RESTORE_PREVIEW',
+                        backupData: parsed
+                    };
+                    renderApp();
+                } catch(err) {
+                    alert("Invalid backup JSON file format.");
+                }
+            };
+            reader.readAsText(file);
+        };
+
+        window.executeRestore = function() {
+            const modal = window.AppState.modal;
+            if (!modal || !modal.backupData) return;
+
+            const data = modal.backupData;
+            window.AppState.companies = data.companies || [];
+            window.AppState.vehicles = data.vehicles || [];
+            window.AppState.manualStats = data.manualStats || {};
+            window.AppState.statsHistory = data.statsHistory || [];
+            window.AppState.vehicleHistory = data.vehicleHistory || [];
+
+            saveDataLocally();
+            window.AppState.modal = null;
+            showNotification("System restored successfully from backup.", 'success');
+        };
+
+        function renderSettingsView() {
+            return `
+            <div class="space-y-6">
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <h2 class="text-2xl font-bold">System Settings</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Configure global application preferences</p>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-6">
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-700">
+                        <div>
+                            <h4 class="font-bold text-sm">Theme Preferences</h4>
+                            <p class="text-xs text-slate-500">Switch between light and dark visual themes</p>
+                        </div>
+                        <button onclick="toggleTheme()" class="px-4 py-2 bg-slate-100 dark:bg-slate-700 rounded-lg text-xs font-semibold">
+                            Current: ${window.AppState.theme.toUpperCase()}
+                        </button>
+                    </div>
+
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-700">
+                        <div>
+                            <h4 class="font-bold text-sm">Supabase Sync</h4>
+                            <p class="text-xs text-slate-500">${({connected:'Connected. Your data is saved online and available on any device.', connecting:'Connecting to Supabase...', error:'Supabase connection failed. Data is saved only in this browser. Check the table and RLS policies.', off:'Supabase is not configured. Data is saved only in this browser.'})[window.AppState.cloudStatus]}</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="uploadDeviceDataToCloud()" class="px-4 py-2 bg-slate-100 dark:bg-slate-700 rounded-lg text-xs font-semibold">Upload this device data to cloud</button>
+                            <button onclick="restoreLocalBackup()" class="px-4 py-2 bg-slate-100 dark:bg-slate-700 rounded-lg text-xs font-semibold">Restore safety copy</button>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-700">
+                        <div>
+                            <h4 class="font-bold text-sm text-rose-600">Reset Local Demo Seed Data</h4>
+                            <p class="text-xs text-slate-500">Restores initial sample companies and vehicles</p>
+                        </div>
+                        <button onclick="resetSeedData()" class="px-4 py-2 bg-rose-50 text-rose-600 dark:bg-rose-950/60 dark:text-rose-300 rounded-lg text-xs font-semibold hover:bg-rose-100">
+                            Reset Seed
+                        </button>
+                    </div>
+                </div>
+            </div>
+            `;
+        }
+
+        window.resetSeedData = function() {
+            if (confirm("Reset local storage to original sample demo data?")) {
+                localStorage.removeItem('fleettrack_db_data');
+                initializeDefaultData();
+                saveDataLocally();
+                renderApp();
+                showNotification("Demo seed data restored.", 'info');
+            }
+        };
+
+
+        function renderModal() {
+            const modal = window.AppState.modal;
+            if (!modal) return '';
+
+            if (modal.type === 'STAT_REASON') {
+                return `
+                <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm">
+                    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl max-w-md w-full p-6 text-slate-800 dark:text-slate-100">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-bold">Adjust Count</h3>
+                            <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600">&times;</button>
+                        </div>
+
+                        <div class="cl-amt">
+                            <div class="cl-seg">
+                                <button type="button" id="statDirAdd" onclick="setStatDir(1)" class="${modal.changeDelta >= 0 ? 'on add' : ''}">Add</button>
+                                <button type="button" id="statDirSub" onclick="setStatDir(-1)" class="${modal.changeDelta < 0 ? 'on sub' : ''}">Remove</button>
+                            </div>
+                            <label class="cl-lbl">Amount</label>
+                            <input type="number" id="statAmountInput" min="1" step="1" value="${Math.abs(modal.changeDelta) || 1}" oninput="onStatAmountInput(this.value)" class="cl-amt-input">
+                            <div class="cl-chips">
+                                ${[1,5,10,25,50,100].map(n => `<button type="button" onclick="setStatAmount(${n})">${n}</button>`).join('')}
+                            </div>
+                            <div class="cl-preview">
+                                <span>${modal.key}</span>
+                                <span><b>${modal.currentVal}</b> to <b id="statNewVal">${modal.newVal}</b> <em id="statChangeVal" class="${modal.changeDelta >= 0 ? 'add' : 'sub'}">${modal.changeDelta > 0 ? '+' + modal.changeDelta : modal.changeDelta}</em></span>
+                            </div>
+                        </div>
+
+                        <form onsubmit="saveStatChange(event)">
+
+                            <div class="flex justify-end space-x-2">
+                                <button type="button" onclick="closeModal()" class="px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-xs font-semibold rounded-lg">Cancel</button>
+                                <button type="submit" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold rounded-lg">Save Change</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                `;
+            }
+
+            if (modal.type === 'DELETE_COMPANY_CONFIRM') {
+                return `
+                <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm">
+                    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl max-w-md w-full p-6 text-slate-800 dark:text-slate-100">
+                        <div class="text-rose-600 dark:text-rose-400 text-3xl mb-2 text-center">
+                                                    </div>
+                        <h3 class="text-lg font-bold text-center mb-2">Delete "${modal.companyName}"?</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 text-center mb-6 leading-relaxed">
+                            This will <strong>permanently delete</strong> the company and all of its cars, histories, and related data. This action cannot be undone.
+                        </p>
+
+                        <div class="flex items-center justify-center space-x-3">
+                            <button onclick="closeModal()" class="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-xs font-semibold rounded-lg">Cancel</button>
+                            <button onclick="executeDeleteCompany('${modal.companyId}')" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold rounded-lg shadow">Permanently Delete</button>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }
+
+            if (modal.type === 'ADD_COMPANY') {
+                return `
+                <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm">
+                    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl max-w-md w-full p-6 text-slate-800 dark:text-slate-100">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-bold">Add New Company</h3>
+                            <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600">&times;</button>
+                        </div>
+
+                        <form onsubmit="handleAddCompany(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Company Name *</label>
+                                <input type="text" id="compName" required class="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Registration ID</label>
+                                <input type="text" id="compRegId" placeholder="e.g. CR-10293" class="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Contact Phone/Email</label>
+                                <input type="text" id="compContact" class="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Notes</label>
+                                <textarea id="compNotes" rows="2" class="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg"></textarea>
+                            </div>
+
+                            <div class="flex justify-end space-x-2 pt-2">
+                                <button type="button" onclick="closeModal()" class="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-xs font-semibold rounded-lg">Cancel</button>
+                                <button type="submit" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold rounded-lg">Create Company</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                `;
+            }
+
+            if (modal.type === 'ADD_VEHICLE') {
+                return `
+                <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm">
+                    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl max-w-2xl w-full p-6 text-slate-800 dark:text-slate-100 max-h-[90vh] overflow-y-auto">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-bold">Add Vehicle (Manual Entry)</h3>
+                            <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600">&times;</button>
+                        </div>
+
+                        <form onsubmit="handleAddVehicle(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Company *</label>
+                                <select id="vehCompId" required class="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg">
+                                    ${window.AppState.companies.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Plate Number *</label>
+                                <input type="text" id="vehPlate" placeholder="e.g. Y-23717" required class="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg font-mono">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">VIN / Chassis Number *</label>
+                                <input type="text" id="vehVin" placeholder="e.g. SALEA7BX2P2223413" required class="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg font-mono">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Device Number</label>
+                                <input type="text" id="vehDevice" class="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg font-mono">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">SIM Card Number</label>
+                                <input type="text" id="vehSim" class="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg font-mono">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Vehicle Status</label>
+                                <select id="vehStatus" class="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg">
+                                    ${STAT_KEYS.map(s => `<option value="${s}">${s}</option>`).join('')}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Installed</label>
+                                <select id="vehInstalled" class="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg">
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Installation Status</label>
+                                <select id="vehInstStatus" class="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg">
+                                    <option value="Installed">Installed</option>
+                                    <option value="Not Installed">Not Installed</option>
+                                </select>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Notes</label>
+                                <textarea id="vehNotes" rows="2" class="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg"></textarea>
+                            </div>
+
+                            <div class="md:col-span-2 flex justify-end space-x-2 pt-2">
+                                <button type="button" onclick="closeModal()" class="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-xs font-semibold rounded-lg">Cancel</button>
+                                <button type="submit" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold rounded-lg">Save Vehicle</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                `;
+            }
+
+            if (modal.type === 'DUPLICATE_WARNING') {
+                return `
+                <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm">
+                    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl max-w-md w-full p-6 text-slate-800 dark:text-slate-100">
+                        <div class="text-amber-500 text-3xl mb-2 text-center">
+                                                    </div>
+                        <h3 class="text-lg font-bold text-center mb-2">Vehicle May Already Exist!</h3>
+                        <div class="bg-amber-50 dark:bg-amber-950/50 p-3 rounded-lg border border-amber-300 dark:border-amber-800 text-xs space-y-1 mb-6 font-mono">
+                            <div>Matched Plate: ${modal.existing.plateNumber}</div>
+                            <div>Matched VIN: ${modal.existing.vin}</div>
+                        </div>
+
+                        <div class="flex items-center justify-center space-x-3">
+                            <button onclick="closeModal()" class="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-xs font-semibold rounded-lg">Cancel</button>
+                            <button onclick="handleAddVehicle(null, true)" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold rounded-lg">Add Anyway</button>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }
+
+            if (modal.type === 'EDIT_VEHICLE') {
+                const v = modal.vehicle;
+                return `
+                <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm">
+                    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl max-w-2xl w-full p-6 text-slate-800 dark:text-slate-100 max-h-[90vh] overflow-y-auto">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-bold">Edit Vehicle (${v.plateNumber})</h3>
+                            <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600">&times;</button>
+                        </div>
+
+                        <form onsubmit="handleEditVehicle(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Company</label>
+                                <select id="editVehCompId" class="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg">
+                                    ${window.AppState.companies.map(c => `<option value="${c.id}" ${c.id === v.companyId ? 'selected' : ''}>${c.name}</option>`).join('')}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Plate Number</label>
+                                <input type="text" id="editVehPlate" value="${v.plateNumber}" required class="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg font-mono">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">VIN / Chassis</label>
+                                <input type="text" id="editVehVin" value="${v.vin}" required class="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg font-mono">
+                            </div>
+
+                            <!-- Hardware Tracking Correct vs Wrong -->
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Current Device #</label>
+                                <input type="text" id="editVehDevice" value="${v.deviceNumber || ''}" class="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg font-mono">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Correct Device # (Hardware Audit)</label>
+                                <input type="text" id="editVehCorrectDevice" value="${v.correctDeviceNumber || v.deviceNumber || ''}" class="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg font-mono">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Current SIM #</label>
+                                <input type="text" id="editVehSim" value="${v.simCardNumber || ''}" class="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg font-mono">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Correct SIM # (Hardware Audit)</label>
+                                <input type="text" id="editVehCorrectSim" value="${v.correctSimCardNumber || v.simCardNumber || ''}" class="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg font-mono">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Status</label>
+                                <select id="editVehStatus" class="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg">
+                                    ${STAT_KEYS.map(s => `<option value="${s}" ${s === v.status ? 'selected' : ''}>${s}</option>`).join('')}
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Installed</label>
+                                <select id="editVehInstalled" class="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg">
+                                    <option value="Yes" ${v.installed === 'Yes' ? 'selected' : ''}>Yes</option>
+                                    <option value="No" ${v.installed === 'No' ? 'selected' : ''}>No</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Installation Status</label>
+                                <select id="editVehInstStatus" class="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg">
+                                    <option value="Installed" ${v.installationStatus === 'Installed' ? 'selected' : ''}>Installed</option>
+                                    <option value="Not Installed" ${v.installationStatus === 'Not Installed' ? 'selected' : ''}>Not Installed</option>
+                                </select>
+                            </div>
+
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Notes</label>
+                                <textarea id="editVehNotes" rows="2" class="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg">${v.notes || ''}</textarea>
+                            </div>
+
+                            <div class="md:col-span-2 border-t border-slate-200 dark:border-slate-700 pt-3">
+                                <label class="block text-xs font-semibold uppercase text-rose-500 mb-1">Reason for field changes *</label>
+                                <input type="text" id="editVehReason" placeholder="e.g. Device replaced / SIM swapped" class="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg">
+                            </div>
+
+                            <div class="md:col-span-2 flex justify-end space-x-2 pt-2">
+                                <button type="button" onclick="closeModal()" class="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-xs font-semibold rounded-lg">Cancel</button>
+                                <button type="submit" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold rounded-lg">Save Changes</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                `;
+            }
+
+            if (modal.type === 'VIEW_VEHICLE_DETAIL') {
+                const v = modal.vehicle;
+                const histories = modal.histories;
+                return `
+                <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm">
+                    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl max-w-2xl w-full p-6 text-slate-800 dark:text-slate-100 max-h-[90vh] overflow-y-auto">
+                        <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-200 dark:border-slate-700">
+                            <div>
+                                <span class="text-xs font-bold text-brand-600 uppercase">Vehicle Details & Audit History</span>
+                                <h3 class="text-xl font-bold">${v.plateNumber}</h3>
+                            </div>
+                            <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600">&times;</button>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 text-xs mb-6 bg-slate-50 dark:bg-slate-900/70 p-4 rounded-xl border border-slate-200 dark:border-slate-700">
+                            <div><strong>Company:</strong> ${getCompanyName(v.companyId)}</div>
+                            <div><strong>VIN / Chassis:</strong> <span class="font-mono">${v.vin}</span></div>
+                            <div><strong>Device Number:</strong> <span class="font-mono">${v.deviceNumber || 'N/A'}</span></div>
+                            <div><strong>Correct Device:</strong> <span class="font-mono">${v.correctDeviceNumber || 'N/A'}</span></div>
+                            <div><strong>SIM Card Number:</strong> <span class="font-mono">${v.simCardNumber || 'N/A'}</span></div>
+                            <div><strong>Correct SIM:</strong> <span class="font-mono">${v.correctSimCardNumber || 'N/A'}</span></div>
+                            <div><strong>Status:</strong> ${v.status}</div>
+                            <div><strong>Installation:</strong> ${v.installed} (${v.installationStatus})</div>
+                        </div>
+
+                        <h4 class="font-bold text-xs uppercase tracking-wider text-slate-500 mb-2">Vehicle Modification Audit Trail</h4>
+                        <div class="space-y-2 max-h-60 overflow-y-auto pr-1">
+                            ${histories.length === 0 ? `
+                                <div class="text-xs text-slate-400 italic">No past modification history logged for this vehicle.</div>
+                            ` : histories.map(h => `
+                                <div class="p-3 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 text-xs">
+                                    <div class="flex justify-between font-semibold text-slate-700 dark:text-slate-300">
+                                        <span>${h.fieldChanged}: ${h.oldValue} to ${h.newValue}</span>
+                                        <span class="text-[11px] text-slate-400 font-mono">${h.date} ${h.time}</span>
+                                    </div>
+                                    <div class="text-slate-500 text-[11px] mt-1">Reason: ${h.reason}</div>
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        <div class="mt-6 flex justify-end">
+                            <button onclick="closeModal()" class="px-4 py-2 bg-slate-800 text-white text-xs font-semibold rounded-lg">Close</button>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }
+
+            if (modal.type === 'RESTORE_PREVIEW') {
+                const b = modal.backupData;
+                return `
+                <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm">
+                    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl max-w-md w-full p-6 text-slate-800 dark:text-slate-100">
+                        <h3 class="text-lg font-bold mb-3">Backup Preview</h3>
+
+                        <div class="bg-slate-100 dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-700 text-xs space-y-2 mb-6">
+                            <div class="flex justify-between"><span>Backup Date:</span> <strong>${b.backupDate || 'Unknown'}</strong></div>
+                            <div class="flex justify-between"><span>Companies:</span> <strong>${(b.companies || []).length}</strong></div>
+                            <div class="flex justify-between"><span>Vehicles:</span> <strong>${(b.vehicles || []).length}</strong></div>
+                        </div>
+
+                        <div class="flex justify-end space-x-2">
+                            <button onclick="closeModal()" class="px-4 py-2 bg-slate-200 dark:bg-slate-700 text-xs font-semibold rounded-lg">Cancel</button>
+                            <button onclick="executeRestore()" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold rounded-lg">Confirm Restore</button>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }
+
+            return '';
+        }
+
+        window.closeModal = function() {
+            window.AppState.modal = null;
+            renderApp();
+        };
+
+
+        function renderApp() {
+            const container = document.getElementById('app');
+            if (!container) return;
+
+            if (!window.AppState.isAuthenticated) {
+                container.innerHTML = renderLogin();
+                return;
+            }
+
+            let mainContent = '';
+            if (window.AppState.loading) {
+                mainContent = '<div class="cl-loading"><div class="cl-spinner"></div><span>Loading</span></div>';
+            } else switch (window.AppState.activeTab) {
+                case 'dashboard':
+                    mainContent = renderDashboardView();
+                    break;
+                case 'companies':
+                    mainContent = renderCompaniesView();
+                    break;
+                case 'cars':
+                    mainContent = renderCarsView(false);
+                    break;
+                case 'installation':
+                    mainContent = renderInstallationView();
+                    break;
+                case 'reports':
+                    mainContent = renderReportsView();
+                    break;
+                case 'backup':
+                    mainContent = renderBackupView();
+                    break;
+                case 'settings':
+                    mainContent = renderSettingsView();
+                    break;
+                default:
+                    mainContent = renderDashboardView();
+            }
+
+            // Toast notification bar
+            let notifHTML = '';
+            if (window.AppState.notification) {
+                const n = window.AppState.notification;
+                notifHTML = `
+                <div class="fixed bottom-5 right-5 z-50 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-700 flex items-center space-x-3 cl-toast text-xs font-semibold">
+                                        <span>${n.msg}</span>
+                </div>
+                `;
+            }
+
+            const _anim = window.AppState._pageAnim; window.AppState._pageAnim = false;
+            container.innerHTML = `
+                ${window.AppState.loading ? '<div class="cl-loader-bar"></div>' : ''}
+                ${renderNavbar()}
+                ${window.AppState.cloudStatus !== 'connected' ? `<div class="cl-warn">${window.AppState.cloudStatus === 'connecting' ? 'Connecting to Supabase...' : 'Supabase sync is not connected. Changes made on this PC will not appear on other PCs. Open Settings for details.'}</div>` : ''}
+                <main class="cl-main">
+                    ${renderTopbar()}
+                    <div class="cl-page ${_anim ? 'cl-page-in' : ''}">${mainContent}</div>
+                </main>
+                ${renderModal()}
+                ${notifHTML}
+            `;
+        }
+
+        // Window Load Bootstrapper
+        window.onload = function() {
+            document.documentElement.classList.toggle('dark', window.AppState.theme === 'dark');
+            renderApp();
+        };
+    </script>
+</body>
+</html>
