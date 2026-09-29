@@ -141,8 +141,7 @@
         /* top bar */
         .cl-bar { position: sticky; top: 0; z-index: 40; display: flex; align-items: center; gap: 22px; min-height: 68px; padding: 0 32px; background: var(--bar); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
         .cl-brand { display: flex; align-items: center; gap: 10px; cursor: pointer; font-weight: 800; font-size: 15px; letter-spacing: -.01em; white-space: nowrap; color: var(--txt); }
-        .cl-brand svg path:first-child { fill: var(--acc); }
-        .cl-brand svg path:nth-child(2) { stroke: var(--acc-txt); }
+        .cl-brand svg { border-radius: 9px; flex: none; box-shadow: 0 4px 12px -4px rgba(37,99,235,.6); }
         .cl-tabs { display: flex; align-items: center; gap: 4px; flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; }
         .cl-tabs::-webkit-scrollbar { display: none; }
         .cl-end { display: flex; align-items: center; gap: 4px; margin-left: auto; padding-left: 8px; }
@@ -260,6 +259,49 @@
         @keyframes clLoad { from { transform: scaleX(0); } to { transform: scaleX(1); } }
         @keyframes clSpin { to { transform: rotate(360deg); } }
         .cl-warn { background: var(--row2); color: var(--txt); border-bottom: 1px solid var(--line); text-align: center; font-size: 12.5px; font-weight: 600; padding: 8px 16px; }
+
+        /* ===== Professional polish ===== */
+        :root{--acc:#2563eb;--acc-txt:#fff;--ok:#059669;--bad:#e11d48;--warn:#d97706;--shadow:0 1px 2px rgba(16,24,40,.05),0 10px 28px -14px rgba(16,24,40,.16)}
+        .dark{--acc:#3b82f6;--acc-txt:#fff;--ok:#34d399;--bad:#fb7185;--warn:#fbbf24;--shadow:none}
+        html .rounded-xl.shadow-sm{box-shadow:var(--shadow)!important;border:1px solid var(--line)}
+        html .cl-title{font-size:26px}
+        html [class*="text-emerald-"]{color:var(--ok)!important}
+        html [class*="text-rose-"],html [class*="text-red-"]{color:var(--bad)!important}
+        html [class*="text-amber-"]{color:var(--warn)!important}
+        html [class*="bg-emerald-1"]:not(button),html [class*="bg-emerald-9"]:not(button){background:rgba(16,185,129,.14)!important}
+        html [class*="bg-rose-1"]:not(button),html [class*="bg-rose-9"]:not(button),html [class*="bg-red-2"]:not(button){background:rgba(244,63,94,.14)!important}
+        html [class*="bg-amber-1"]:not(button),html [class*="bg-amber-9"]:not(button){background:rgba(245,158,11,.15)!important}
+        html span[class*="border"][class*="text-["]{border:0!important}
+        html tbody td{font-size:13px}
+        html thead th{text-transform:none;letter-spacing:.02em}
+        button:disabled{opacity:.4;cursor:not-allowed}
+        input[type=checkbox]{width:16px;height:16px;padding:0;accent-color:var(--acc);cursor:pointer;border-radius:4px!important}
+        .cl-bd{display:flex;align-items:center;gap:10px;width:100%;padding:8px 10px;background:var(--row)!important;border:1px solid var(--line);font-size:11.5px;font-weight:700}
+        .cl-bd:hover{border-color:var(--acc)}
+        .cl-bd-w{color:var(--bad)}.cl-bd-c{color:var(--ok)}.cl-bd-go{margin-left:auto;color:var(--mut)}
+        .cl-pill{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:11.5px;font-weight:700;white-space:nowrap}
+        .cl-pill::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
+        .cl-pill.w{background:rgba(244,63,94,.14);color:var(--bad)}.cl-pill.c{background:rgba(16,185,129,.14);color:var(--ok)}
+        .cl-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+        .cl-kpi{padding:14px 16px;border-radius:14px;background:var(--card);border:1px solid var(--line)}
+        .cl-kpi b{display:block;font-size:26px;font-weight:800;letter-spacing:-.02em;line-height:1.2}
+        .cl-kpi span{font-size:12px;color:var(--mut);font-weight:600}
+        .cl-kpi.w b{color:var(--bad)}.cl-kpi.c b{color:var(--ok)}
+        .cl-bulk{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 14px;border-radius:14px;background:var(--row2);border:1px solid var(--line);font-size:13px;font-weight:600}
+        .cl-bulk button,.cl-row button{padding:8px 14px;font-size:12.5px}
+        .cl-btn{background:var(--acc)!important;color:var(--acc-txt)!important}
+        .cl-btn.ghost{background:var(--row)!important;color:var(--txt)!important;border:1px solid var(--line)!important}
+        .cl-btn.bad{background:rgba(244,63,94,.14)!important;color:var(--bad)!important}
+        .cl-btn.ok{background:rgba(16,185,129,.14)!important;color:var(--ok)!important}
+        .cl-mini{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
+        .cl-mini div{background:var(--row);border-radius:12px;padding:10px 12px}
+        .cl-mini b{display:block;font-size:18px;font-weight:800}.cl-mini span{font-size:11px;color:var(--mut);font-weight:600}
+        .cl-mini .w b{color:var(--bad)}
+        .cl-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+        @media(max-width:720px){.cl-cols{grid-template-columns:1fr}}
+        .cl-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:var(--row);margin-bottom:6px;font-size:12.5px}
+        .cl-list{max-height:50vh;overflow-y:auto;padding-right:4px}
+        .cl-colh{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-weight:800;font-size:13.5px}
     </style>
 </head>
 <body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-full flex flex-col transition-colors duration-150">
@@ -282,6 +324,9 @@
         // Login credentials requested for this single-file app.
         const LOGIN_EMAIL = 'moamen@clicklife.com';
         const LOGIN_PASSWORD = 'moamen123A';
+
+        // Status keys (must be defined before normalizeData() runs at startup)
+        const STAT_KEYS = ['Signal', 'Deactivated', 'Failing', 'Dead', 'Not Renewed', 'Not Activated', 'Expired', 'Removed'];
 
         // Global State Manager
         window.AppState = {
@@ -366,10 +411,10 @@
             ];
 
             window.AppState.manualStats = {
-                'ALL': { Signal: 416, Deactivated: 22, Failing: 26, Dead: 211, NotRenewed: 65, NotActivated: 21, NonActive: 1, Expired: 0 },
-                'comp_1': { Signal: 210, Deactivated: 10, Failing: 12, Dead: 100, NotRenewed: 30, NotActivated: 10, NonActive: 1, Expired: 0 },
-                'comp_2': { Signal: 150, Deactivated: 8, Failing: 10, Dead: 80, NotRenewed: 25, NotActivated: 8, NonActive: 0, Expired: 0 },
-                'comp_3': { Signal: 56, Deactivated: 4, Failing: 4, Dead: 31, NotRenewed: 10, NotActivated: 3, NonActive: 0, Expired: 0 }
+                'ALL': { Signal: 416, Deactivated: 22, Failing: 26, Dead: 211, NotRenewed: 65, NotActivated: 21, Expired: 0, Removed: 0 },
+                'comp_1': { Signal: 210, Deactivated: 10, Failing: 12, Dead: 100, NotRenewed: 30, NotActivated: 10, Expired: 0, Removed: 0 },
+                'comp_2': { Signal: 150, Deactivated: 8, Failing: 10, Dead: 80, NotRenewed: 25, NotActivated: 8, Expired: 0, Removed: 0 },
+                'comp_3': { Signal: 56, Deactivated: 4, Failing: 4, Dead: 31, NotRenewed: 10, NotActivated: 3, Expired: 0, Removed: 0 }
             };
 
             window.AppState.vehicles = [
@@ -641,7 +686,15 @@
         function normalizeData() {
             // Preserve the archived flag when data is loaded from localStorage or cloud.
             // The old implementation reset every vehicle to active on each load.
-            (window.AppState.vehicles || []).forEach(v => { v.archived = Boolean(v.archived); });
+            (window.AppState.vehicles || []).forEach(v => { v.archived = Boolean(v.archived); v.wrongInstall = Boolean(v.wrongInstall); });
+            const MAP = { NotRenewed: 'Not Renewed', NotActivated: 'Not Activated' };
+            Object.values(window.AppState.manualStats || {}).forEach(st => {
+                Object.keys(MAP).forEach(k => { if (k in st) { if (st[MAP[k]] === undefined) st[MAP[k]] = st[k]; delete st[k]; } });
+                // Independent total: seed once from the old sum so the number does not jump, then it is edited on its own.
+                if (st.Total === undefined) st.Total = STAT_KEYS.reduce((a, k) => a + (st[k] || 0), 0) + (st['Non Active'] || 0);
+                delete st['Non Active']; delete st['NonActive'];
+            });
+            (window.AppState.vehicles || []).forEach(v => { if (v.status === 'Non Active') v.status = 'Deactivated'; });
         }
         window.normalizeData = normalizeData;
 
@@ -676,11 +729,10 @@
             'Dead': { bg: 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 border-rose-300 dark:border-rose-800', badge: 'bg-rose-500' },
             'Not Renewed': { bg: 'bg-purple-100 text-purple-800 dark:bg-purple-950/60 dark:text-purple-300 border-purple-300 dark:border-purple-800', badge: 'bg-purple-500' },
             'Not Activated': { bg: 'bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 border-blue-300 dark:border-blue-800', badge: 'bg-blue-500' },
-            'Non Active': { bg: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950/60 dark:text-indigo-300 border-indigo-300 dark:border-indigo-800', badge: 'bg-indigo-500' },
+            'Removed': { bg: 'bg-pink-100 text-pink-800 dark:bg-pink-950/60 dark:text-pink-300 border-pink-300 dark:border-pink-800', badge: 'bg-pink-500' },
             'Expired': { bg: 'bg-red-200 text-red-900 dark:bg-red-950 dark:text-red-200 border-red-400 dark:border-red-800', badge: 'bg-red-600' }
         };
 
-        const STAT_KEYS = ['Signal', 'Deactivated', 'Failing', 'Dead', 'Not Renewed', 'Not Activated', 'Non Active', 'Expired'];
 
         function showNotification(msg, type = 'info') {
             window.AppState.notification = { msg, type };
@@ -694,9 +746,11 @@
 
         function getCompanyStats(companyId) {
             if (!window.AppState.manualStats[companyId]) {
-                window.AppState.manualStats[companyId] = { Signal: 0, Deactivated: 0, Failing: 0, Dead: 0, NotRenewed: 0, NotActivated: 0, NonActive: 0, Expired: 0 };
+                window.AppState.manualStats[companyId] = { 'Total': 0, 'Signal': 0, 'Deactivated': 0, 'Failing': 0, 'Dead': 0, 'Not Renewed': 0, 'Not Activated': 0, 'Expired': 0, 'Removed': 0 };
             }
-            return window.AppState.manualStats[companyId];
+            const st = window.AppState.manualStats[companyId];
+            if (st.Total === undefined) st.Total = STAT_KEYS.reduce((a, k) => a + (st[k] || 0), 0);
+            return st;
         }
 
         function getCompanyName(id) {
@@ -706,8 +760,15 @@
         }
 
 
-        const CL_LOGO = (n=28) => `<svg width="${n}" height="${n}" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16 2.5 27 6.6v8.2c0 6.3-4.3 11.2-11 14.7C9.3 26 5 21.100 5 14.800V6.600L16 2.500Z" fill="url(#clg)"/><path d="M10.500 20.500 16 11l5.500 9.500M12.800 17h6.400" stroke="#fff" stroke-width="2.200" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="clg" x1="5" y1="2" x2="27" y2="30"><stop stop-color="#4f8cff"/><stop offset="1" stop-color="#1d4ed8"/></linearGradient></defs></svg>`;
-        const CL_SPARK_COL = {'Signal':'#34d399','Deactivated':'#94a3b8','Failing':'#fbbf24','Dead':'#f87171','Not Renewed':'#c084fc','Not Activated':'#60a5fa','Non Active':'#818cf8','Expired':'#fb7185'};
+        const CL_LOGO = (n=28) => `<svg width="${n}" height="${n}" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="clg" x1="2" y1="2" x2="30" y2="30" gradientUnits="userSpaceOnUse"><stop stop-color="#3b82f6"/><stop offset="1" stop-color="#1e3a8a"/></linearGradient></defs><rect width="32" height="32" rx="9" fill="url(#clg)"/><path d="M16 5.5 24.5 8.7v6.7c0 4.9-3.4 8.5-8.5 10.6-5.1-2.1-8.5-5.7-8.5-10.6V8.7L16 5.5Z" fill="#fff"/><path d="M16 10.4a3.6 3.6 0 0 1 3.6 3.6c0 2.7-3.6 6.2-3.6 6.2s-3.6-3.5-3.6-6.2A3.6 3.6 0 0 1 16 10.4Z" fill="#2563eb"/><circle cx="16" cy="14" r="1.4" fill="#fff"/></svg>`;
+        const CL_AV_COLS = [['#3b82f6','#1e3a8a'],['#10b981','#065f46'],['#8b5cf6','#4c1d95'],['#f59e0b','#92400e'],['#ec4899','#831843'],['#06b6d4','#155e75']];
+        function compAvatar(name, n=48) {
+            const t = (name || '?').trim(), w = t.split(/\s+/).filter(Boolean);
+            const ini = ((w[0] || '?')[0] + (w.length > 1 ? w[1][0] : '')).toUpperCase();
+            const h = [...t].reduce((a, c) => a + c.charCodeAt(0), 0), c = CL_AV_COLS[h % CL_AV_COLS.length];
+            return `<div style="width:${n}px;height:${n}px;border-radius:${Math.round(n*.3)}px;background:linear-gradient(135deg,${c[0]},${c[1]});color:#fff;display:grid;place-items:center;font-weight:800;font-size:${Math.round(n*.36)}px;letter-spacing:.02em;box-shadow:0 6px 16px -6px ${c[0]}99;flex:none">${ini}</div>`;
+        }
+        const CL_SPARK_COL = {'Signal':'#34d399','Deactivated':'#94a3b8','Failing':'#fbbf24','Dead':'#f87171','Not Renewed':'#c084fc','Not Activated':'#60a5fa','Expired':'#fb7185','Removed':'#f472b6'};
         function clSpark(key, val) {
             let seed = [...key].reduce((a,c)=>a+c.charCodeAt(0),0) + val, y = 20, pts = [];
             for (let i=0;i<24;i++){ seed=(seed*9301+49297)%233280; y+=(seed/233280-.5)*7; y=Math.max(5,Math.min(30,y)); pts.push([i*200/23,y]); }
@@ -716,13 +777,56 @@
             return `<svg viewBox="0 0 200 34" preserveAspectRatio="none" class="cl-spark"><defs><linearGradient id="${id}" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="${c}" stop-opacity=".3"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></linearGradient></defs><path d="${d} L200 34 L0 34 Z" fill="url(#${id})"/><path d="${d}" fill="none" stroke="${c}" stroke-width="1.6" vector-effect="non-scaling-stroke"/></svg>`;
         }
 
+        // ===== Installation review helpers =====
+        function carsOf(compId) { return window.AppState.vehicles.filter(v => !v.archived && (compId === 'ALL' || v.companyId === compId)); }
+        function installSplit(list) { const w = list.filter(v => v.wrongInstall).length; return { w, c: list.length - w }; }
+        function breakdownLine(compId, key) {
+            const { w, c } = installSplit(carsOf(compId).filter(v => v.status === key));
+            return `<button onclick="openStatBreakdown('${compId}','${key}')" class="cl-bd"><span class="cl-bd-w">${w} wrong install</span><span class="cl-bd-c">${c} correct</span><span class="cl-bd-go">Details ›</span></button>`;
+        }
+        function carsSummary(compId) {
+            const all = carsOf(compId), dead = all.filter(v => v.status === 'Dead'), d = installSplit(dead);
+            return `<div class="cl-kpis"><div class="cl-kpi"><b>${all.length}</b><span>Vehicles</span></div><div class="cl-kpi w"><b>${installSplit(all).w}</b><span>Wrong installations</span></div><div class="cl-kpi"><b>${dead.length}</b><span>Dead vehicles</span></div><div class="cl-kpi w"><b>${d.w}</b><span>Dead · wrong install</span></div><div class="cl-kpi c"><b>${d.c}</b><span>Dead · correct install</span></div></div>`;
+        }
+        function compMini(id) {
+            const all = carsOf(id);
+            return `<div class="cl-mini"><div><b>${all.length}</b><span>Vehicles</span></div><div><b>${all.filter(v => v.status === 'Dead').length}</b><span>Dead</span></div><div class="w"><b>${installSplit(all).w}</b><span>Wrong install</span></div></div>`;
+        }
+        function bulkBar() {
+            const n = (window.AppState.selectedCars || []).length;
+            return `<div class="cl-bulk"><span>${n ? n + ' selected' : 'Tick the vehicles installed incorrectly, then flag them for data review'}</span><span style="flex:1"></span><button ${n ? '' : 'disabled'} onclick="bulkMarkInstall(true)" class="cl-btn bad">Mark wrong installation</button><button ${n ? '' : 'disabled'} onclick="bulkMarkInstall(false)" class="cl-btn ok">Mark correct</button>${n ? '<button onclick="clearCarSel()" class="cl-btn ghost">Clear</button>' : ''}</div>`;
+        }
+        function setWrong(ids, val, reason) {
+            const now = new Date();
+            ids.forEach(id => {
+                const v = window.AppState.vehicles.find(x => x.id === id);
+                if (!v || v.wrongInstall === val) return;
+                v.wrongInstall = val;
+                window.AppState.vehicleHistory.unshift({ id: 'vh_' + Date.now() + Math.random().toString().slice(2, 6), vehicleId: v.id, plateNumber: v.plateNumber, fieldChanged: 'Installation Check', oldValue: val ? 'Correct' : 'Wrong installation', newValue: val ? 'Wrong installation' : 'Correct', reason, date: now.toISOString().split('T')[0], time: now.toTimeString().split(' ')[0], user: window.AppState.currentUser || 'admin' });
+            });
+            saveDataLocally();
+        }
+        window.openStatBreakdown = function(c, k) { window.AppState.modal = { type: 'STAT_BREAKDOWN', companyId: c, key: k }; renderApp(); };
+        window.openStatInCars = function(c, k) { const f = window.AppState.filters; f.status = k; f.companyId = c; f.wrongInstall = 'ALL'; window.AppState.selectedCompanyId = c; window.AppState.modal = null; switchTab('cars'); };
+        window.toggleWrongInstall = function(id) { const v = window.AppState.vehicles.find(x => x.id === id); if (!v) return; setWrong([id], !v.wrongInstall, 'Reviewed from statistics breakdown'); renderApp(); };
+        window.toggleCarSel = function(id) { const a = window.AppState.selectedCars = window.AppState.selectedCars || []; const i = a.indexOf(id); i < 0 ? a.push(id) : a.splice(i, 1); renderApp(); };
+        window.toggleAllCars = function(on) { window.AppState.selectedCars = on ? (window.AppState._visibleIds || []).slice() : []; renderApp(); };
+        window.clearCarSel = function() { window.AppState.selectedCars = []; renderApp(); };
+        window.bulkMarkInstall = function(val) {
+            const ids = window.AppState.selectedCars || []; if (!ids.length) return;
+            setWrong(ids, val, val ? 'Flagged as wrong installation - pending data review' : 'Verified correct installation');
+            window.AppState.selectedCars = [];
+            showNotification(`${ids.length} vehicle(s) marked as ${val ? 'wrong installation' : 'correct'}.`, 'success');
+        };
+        window.reviewWrong = function(id) { const f = window.AppState.filters; f.wrongInstall = 'wrong'; f.status = 'ALL'; selectCompanyFilter(id); switchTab('cars'); };
+
         function renderLogin() {
             return `
             <div class="min-h-screen flex items-center justify-center bg-slate-900 p-4">
                 <div class="max-w-md w-full bg-slate-800 border border-slate-700 rounded-xl shadow-2xl p-8 text-slate-100">
                     <div class="text-center mb-8">
-                        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-brand-600 mb-4 shadow-lg">
-                            ${CL_LOGO(34)}
+                        <div class="inline-flex items-center justify-center mb-4">
+                            ${CL_LOGO(68)}
                         </div>
                         <h1 class="text-2xl font-bold tracking-tight text-white">Clicklife SecurePath</h1>
                         <p class="text-sm text-slate-400 mt-1">Vehicle Tracking Management System</p>
@@ -851,8 +955,8 @@
             const compName = getCompanyName(compId);
             const stats = getCompanyStats(compId);
 
-            // Calculate total sum of manual stats
-            const total = STAT_KEYS.reduce((sum, key) => sum + (stats[key] || 0), 0);
+            // Total is its own number: categories can overlap (e.g. Dead + Expired), so it is NOT their sum
+            const total = stats.Total || 0;
 
             return `
             <div class="space-y-6">
@@ -897,7 +1001,7 @@
                                     <button onclick="promptStatChange('${compId}', '${key}', ${val}, 1)" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-emerald-100 hover:text-emerald-700 dark:bg-slate-700 dark:hover:bg-emerald-900/60 dark:hover:text-emerald-300 font-bold text-slate-700 dark:text-slate-200 flex items-center justify-center transition" title="Increase Count">+</button>
                                 </div>
                             </div>
-                            <div class="text-[11px] text-slate-400">Manual counter</div>
+                            ${breakdownLine(compId, key)}
                         </div>
                         `;
                     }).join('')}
@@ -907,10 +1011,14 @@
                         <div class="flex items-center justify-between">
                             <span class="text-xs font-semibold uppercase tracking-wider text-slate-300">Total Count</span>
                                                     </div>
-                        <div class="my-3">
+                        <div class="my-3 flex items-baseline justify-between">
                             <span class="text-4xl font-black text-white tracking-tight">${total}</span>
+                            <div class="flex items-center space-x-1">
+                                <button onclick="promptStatChange('${compId}', 'Total', ${total}, -1)" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 font-bold text-white flex items-center justify-center transition" title="Decrease Count">&minus;</button>
+                                <button onclick="promptStatChange('${compId}', 'Total', ${total}, 1)" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 font-bold text-white flex items-center justify-center transition" title="Increase Count">+</button>
+                            </div>
                         </div>
-                        <div class="text-[11px] text-slate-400">Sum of all active stat categories</div>
+                        <div class="text-[11px] text-slate-400">Independent total - not the sum of the categories</div>
                     </div>
                 </div>
 
@@ -976,9 +1084,7 @@
                         <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm hover:shadow transition flex flex-col justify-between">
                             <div>
                                 <div class="flex items-start justify-between">
-                                    <div class="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-700 dark:text-slate-200 font-bold text-lg mb-4">
-                                        ${(comp.name || "?").charAt(0).toUpperCase()}
-                                    </div>
+                                    <div class="mb-4">${compAvatar(comp.name, 48)}</div>
                                     <span class="px-2.5 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-md text-xs font-mono">
                                         ${comp.regId || 'N/A'}
                                     </span>
@@ -987,6 +1093,7 @@
                                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">${comp.contact || 'No contact specified'}</p>
                                 <p class="text-xs text-slate-600 dark:text-slate-300 mt-3 line-clamp-2">${comp.notes || 'No notes'}</p>
                                 
+                                ${compMini(comp.id)}
                                 <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-xs text-slate-500">
                                     <span>Active Vehicles:</span>
                                     <span class="font-bold text-slate-900 dark:text-white text-sm">${compVehicles.length}</span>
@@ -994,9 +1101,10 @@
                             </div>
 
                             <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between space-x-2">
-                                <button onclick="selectCompanyFilter('${comp.id}'); switchTab('cars');" class="flex-1 py-2 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 rounded-lg text-xs font-semibold transition text-center">
+                                <button onclick="AppState.filters.wrongInstall='ALL'; AppState.filters.status='ALL'; selectCompanyFilter('${comp.id}'); switchTab('cars');" class="flex-1 py-2 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 rounded-lg text-xs font-semibold transition text-center">
                                     View Cars
                                 </button>
+                                <button onclick="reviewWrong('${comp.id}')" class="py-2 px-3 cl-btn bad rounded-lg text-xs font-semibold transition">Wrong installs</button>
                                 <button onclick="confirmDeleteCompany('${comp.id}', '${comp.name}')" class="py-2 px-3 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/60 rounded-lg text-xs font-semibold transition" title="Delete Company">
                                     Delete
                                 </button>
@@ -1033,7 +1141,7 @@
 
             window.AppState.companies.push(newComp);
             // initialize stats
-            window.AppState.manualStats[newComp.id] = { Signal: 0, Deactivated: 0, Failing: 0, Dead: 0, NotRenewed: 0, NotActivated: 0, NonActive: 0, Expired: 0 };
+            window.AppState.manualStats[newComp.id] = { 'Total': 0, 'Signal': 0, 'Deactivated': 0, 'Failing': 0, 'Dead': 0, 'Not Renewed': 0, 'Not Activated': 0, 'Expired': 0, 'Removed': 0 };
             saveDataLocally();
 
             window.AppState.modal = null;
@@ -1083,6 +1191,9 @@
             if (f.installationStatus !== 'ALL') {
                 list = list.filter(v => v.installationStatus === f.installationStatus);
             }
+            if (f.wrongInstall === 'wrong') list = list.filter(v => v.wrongInstall);
+            if (f.wrongInstall === 'correct') list = list.filter(v => !v.wrongInstall);
+            window.AppState._visibleIds = list.map(v => v.id);
 
             // Single Search Box searching across Plate, VIN, Device, SIM
             if (f.search.trim()) {
@@ -1113,12 +1224,13 @@
                     ` : ''}
                 </div>
 
+                ${isArchivedMode ? '' : carsSummary(f.companyId)}
                 <!-- Search & Filters Bar -->
                 <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-3">
                         <!-- Single Unified Search Box -->
                         <div class="lg:col-span-2 relative">
-                            <input type="text" value="${f.search}" oninput="updateSearchFilter(this.value)" placeholder="Search Plate, VIN, Device #, or SIM #" class="w-full pl-3 pr-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-brand-500">
+                            <input type="text" id="carSearch" value="${f.search}" oninput="updateSearchFilter(this.value)" placeholder="Search Plate, VIN, Device #, or SIM #" class="w-full pl-3 pr-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-brand-500">
                         </div>
 
                         <!-- Company Filter -->
@@ -1137,6 +1249,13 @@
                             </select>
                         </div>
 
+                        <div>
+                            <select onchange="updateFilter('wrongInstall', this.value)" class="w-full py-2 px-3 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg font-medium">
+                                <option value="ALL" ${!f.wrongInstall || f.wrongInstall === 'ALL' ? 'selected' : ''}>Install check: All</option>
+                                <option value="wrong" ${f.wrongInstall === 'wrong' ? 'selected' : ''}>Wrong installation</option>
+                                <option value="correct" ${f.wrongInstall === 'correct' ? 'selected' : ''}>Correct installation</option>
+                            </select>
+                        </div>
                         <!-- Installed Filter -->
                         <div>
                             <select onchange="updateFilter('installed', this.value)" class="w-full py-2 px-3 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg font-medium">
@@ -1148,12 +1267,14 @@
                     </div>
                 </div>
 
+                ${isArchivedMode ? '' : bulkBar()}
                 <!-- Vehicles Table -->
                 <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="bg-slate-100/80 dark:bg-slate-900/60 text-slate-500 dark:text-slate-400 uppercase text-[11px] tracking-wider font-semibold border-b border-slate-200 dark:border-slate-700">
+                                    <th class="py-3.5 px-4"><input type="checkbox" onchange="toggleAllCars(this.checked)" aria-label="Select all"></th>
                                     <th class="py-3.5 px-4">Company</th>
                                     <th class="py-3.5 px-4">Plate Number</th>
                                     <th class="py-3.5 px-4">VIN / Chassis</th>
@@ -1162,13 +1283,14 @@
                                     <th class="py-3.5 px-4">Status</th>
                                     <th class="py-3.5 px-4">Installed</th>
                                     <th class="py-3.5 px-4">Installation Status</th>
+                                    <th class="py-3.5 px-4">Install Check</th>
                                     <th class="py-3.5 px-4 text-center">Actions</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-200 dark:divide-slate-700 text-xs">
                                 ${list.length === 0 ? `
                                 <tr>
-                                    <td colspan="9" class="py-12 text-center text-slate-400">
+                                    <td colspan="11" class="py-12 text-center text-slate-400">
                                                                                 No vehicles found matching criteria.
                                     </td>
                                 </tr>
@@ -1177,6 +1299,7 @@
                                     const cfg = STATUS_CONFIG[v.status] || { bg: 'bg-slate-100 text-slate-800' };
                                     return `
                                     <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition">
+                                        <td class="py-3 px-4"><input type="checkbox" ${(window.AppState.selectedCars || []).includes(v.id) ? 'checked' : ''} onchange="toggleCarSel('${v.id}')" aria-label="Select vehicle"></td>
                                         <td class="py-3 px-4 font-semibold text-slate-700 dark:text-slate-300 max-w-[140px] truncate" title="${compName}">${compName}</td>
                                         <td class="py-3 px-4 font-bold text-brand-700 dark:text-brand-300 font-mono">${v.plateNumber}</td>
                                         <td class="py-3 px-4 font-mono text-slate-600 dark:text-slate-400">${v.vin}</td>
@@ -1189,6 +1312,7 @@
                                         </td>
                                         <td class="py-3 px-4 font-medium">${v.installed === 'Yes' ? '<span class="text-emerald-600 font-bold">Yes</span>' : '<span class="text-rose-500 font-bold">No</span>'}</td>
                                         <td class="py-3 px-4">${v.installationStatus}</td>
+                                        <td class="py-3 px-4"><span class="cl-pill ${v.wrongInstall ? 'w' : 'c'}">${v.wrongInstall ? 'Wrong' : 'Correct'}</span></td>
                                         <td class="py-3 px-4 text-center">
                                             <div class="flex items-center justify-center space-x-1">
                                                 <button onclick="viewVehicleDetail('${v.id}')" class="p-1.5 rounded bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-600 dark:text-slate-300 transition" title="View Details">View
@@ -1211,6 +1335,8 @@
         window.updateSearchFilter = function(val) {
             window.AppState.filters.search = val;
             renderApp();
+            const el = document.getElementById('carSearch');
+            if (el) { el.focus(); el.setSelectionRange(val.length, val.length); }
         };
 
         window.updateFilter = function(key, val) {
@@ -1470,6 +1596,7 @@
                                         <option value="carNumbers">Car Numbers</option>
                                         <option value="deadCars">Dead Cars</option>
                                         <option value="onlineCars">Online Cars</option>
+                                        <option value="wrongCars">Wrong Installation Cars</option>
                                     </select>
                                 </div>
                             </div>
@@ -1520,6 +1647,7 @@
             if (compId !== 'ALL') list = list.filter(v => v.companyId === compId);
             if (datasetKey === 'deadCars') list = list.filter(v => v.status === 'Dead');
             if (datasetKey === 'onlineCars') list = list.filter(v => v.status === 'Signal');
+            if (datasetKey === 'wrongCars') list = list.filter(v => v.wrongInstall);
 
             let dataToExport;
             if (datasetKey === 'carNumbers') {
@@ -1537,6 +1665,7 @@
                     'Status': v.status,
                     'Installed': v.installed,
                     'Installation Status': v.installationStatus,
+                    'Installation Check': v.wrongInstall ? 'Wrong installation' : 'Correct',
                     'Notes': v.notes || ''
                 }));
             }
@@ -1554,106 +1683,221 @@
             showNotification(`Excel exported: ${fileName}`, 'success');
         };
 
-        window.triggerQuickPDF = function() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            const compName = getCompanyName(window.AppState.selectedCompanyId);
-            const stats = getCompanyStats(window.AppState.selectedCompanyId);
+        // ===== PDF report engine =====
+        const PDF_COL = {'Signal':[16,185,129],'Deactivated':[100,116,139],'Failing':[245,158,11],'Dead':[239,68,68],'Not Renewed':[168,85,247],'Not Activated':[59,130,246],'Expired':[220,38,38],'Removed':[219,39,119]};
+        const PDF_NAVY = [15,23,42], PDF_BLUE = [37,99,235], PDF_INK = [30,41,59], PDF_MUTED = [100,116,139], PDF_LINE = [226,232,240], PDF_SOFT = [248,250,252];
+        let _pdfLogoCache = null;
 
-            doc.setFontSize(18);
-            doc.text("Clicklife SecurePath - Overall Statistics Report", 14, 20);
-
-            doc.setFontSize(10);
-            doc.setTextColor(100);
-            doc.text(`Company: ${compName}`, 14, 28);
-            doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 34);
-
-            const tableRows = STAT_KEYS.map(k => [k, stats[k] || 0]);
-            const total = STAT_KEYS.reduce((s, k) => s + (stats[k] || 0), 0);
-            tableRows.push(['Total Vehicles Count', total]);
-
-            doc.autoTable({
-                startY: 40,
-                head: [['Status Category', 'Manual Count']],
-                body: tableRows,
-                theme: 'striped',
-                headStyles: { fillColor: [2, 132, 199] }
+        function pdfLogoPng() {
+            if (_pdfLogoCache) return _pdfLogoCache;
+            _pdfLogoCache = new Promise(res => {
+                try {
+                    const img = new Image();
+                    const done = setTimeout(() => res(null), 2500);
+                    img.onload = () => {
+                        clearTimeout(done);
+                        const c = document.createElement('canvas'); c.width = c.height = 320;
+                        c.getContext('2d').drawImage(img, 0, 0, 320, 320);
+                        res(c.toDataURL('image/png'));
+                    };
+                    img.onerror = () => { clearTimeout(done); res(null); };
+                    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(CL_LOGO(320));
+                } catch (e) { res(null); }
             });
+            return _pdfLogoCache;
+        }
 
-            doc.save(`QuickReport_${Date.now()}.pdf`);
-            showNotification("Quick PDF downloaded.", 'success');
-        };
+        function pdfLogo(doc, logo, x, y, s) {
+            if (logo) { doc.addImage(logo, 'PNG', x, y, s, s); return; }
+            doc.setFillColor(...PDF_BLUE); doc.roundedRect(x, y, s, s, s * 0.28, s * 0.28, 'F');
+        }
 
-        window.triggerCustomPDF = function() {
+        function pdfSection(doc, text, y) {
+            doc.setFillColor(...PDF_BLUE); doc.roundedRect(14, y - 4.2, 1.6, 5.6, 0.8, 0.8, 'F');
+            doc.setFont('helvetica', 'bold'); doc.setFontSize(11.5); doc.setTextColor(...PDF_NAVY);
+            doc.text(text, 18.5, y);
+        }
+
+        async function buildReportPDF(opts) {
             const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            const compName = getCompanyName(window.AppState.selectedCompanyId);
+            const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+            const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight();
+            const compId = window.AppState.selectedCompanyId;
+            const compName = getCompanyName(compId);
+            const stats = getCompanyStats(compId);
+            const total = stats.Total || 0;
+            const logo = await pdfLogoPng();
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) + '  ' + now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+            const cars = carsOf(compId);
 
-            const includeStats = document.getElementById('pdfIncludeStats')?.checked;
-            const includeVehicles = document.getElementById('pdfIncludeVehicles')?.checked;
+            // ---- cover header ----
+            doc.setFillColor(...PDF_NAVY); doc.rect(0, 0, W, 44, 'F');
+            doc.setFillColor(...PDF_BLUE); doc.rect(0, 44, W, 1.6, 'F');
+            pdfLogo(doc, logo, 14, 10, 22);
+            doc.setFont('helvetica', 'bold'); doc.setFontSize(19); doc.setTextColor(255, 255, 255);
+            doc.text('Clicklife SecurePath', 41, 21);
+            doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(148, 163, 184);
+            doc.text('Vehicle Tracking Management System', 41, 27.5);
+            doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.setTextColor(255, 255, 255);
+            doc.text(opts.title, W - 14, 19, { align: 'right' });
+            doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(148, 163, 184);
+            doc.text('Generated ' + dateStr, W - 14, 25.5, { align: 'right' });
 
-            doc.setFontSize(18);
-            doc.text("Clicklife SecurePath - Custom System Report", 14, 20);
+            // ---- scope ----
+            doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(...PDF_MUTED);
+            doc.text('COMPANY SCOPE', 14, 55);
+            doc.setFontSize(14); doc.setTextColor(...PDF_NAVY);
+            doc.text(compName, 14, 62);
 
-            doc.setFontSize(10);
-            doc.setTextColor(100);
-            doc.text(`Company Scope: ${compName}`, 14, 28);
-            doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 34);
+            let y = 72;
 
-            let currentY = 40;
-
-            if (includeStats) {
-                const stats = getCompanyStats(window.AppState.selectedCompanyId);
-                const tableRows = STAT_KEYS.map(k => [k, stats[k] || 0]);
-                
-                doc.setFontSize(12);
-                doc.setTextColor(0);
-                doc.text("Manual Dashboard Statistics", 14, currentY);
-
-                doc.autoTable({
-                    startY: currentY + 4,
-                    head: [['Status Category', 'Count']],
-                    body: tableRows,
-                    theme: 'grid',
-                    headStyles: { fillColor: [15, 23, 42] }
+            if (opts.stats) {
+                // ---- KPI cards ----
+                const gap = 4, cw = (W - 28 - gap * 3) / 4, ch = 24;
+                const wrong = installSplit(cars).w;
+                const pct = v => total > 0 ? Math.round(v / total * 100) + '% of total' : '-';
+                const kpis = [
+                    ['Total vehicles', total, 'Tracked fleet size', PDF_BLUE],
+                    ['Online (Signal)', stats.Signal || 0, pct(stats.Signal || 0), PDF_COL['Signal']],
+                    ['Dead', stats.Dead || 0, pct(stats.Dead || 0), PDF_COL['Dead']],
+                    ['Wrong installations', wrong, 'Flagged for review', [234, 88, 12]]
+                ];
+                kpis.forEach((k, i) => {
+                    const x = 14 + i * (cw + gap);
+                    doc.setFillColor(...PDF_SOFT); doc.setDrawColor(...PDF_LINE); doc.setLineWidth(0.3);
+                    doc.roundedRect(x, y, cw, ch, 2.5, 2.5, 'FD');
+                    doc.setFillColor(...k[3]); doc.roundedRect(x, y + 4, 1.6, ch - 8, 0.8, 0.8, 'F');
+                    doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(...PDF_MUTED);
+                    doc.text(k[0].toUpperCase(), x + 6, y + 7.5);
+                    doc.setFont('helvetica', 'bold'); doc.setFontSize(19); doc.setTextColor(...PDF_NAVY);
+                    doc.text(String(k[1]), x + 6, y + 16.2);
+                    doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(...PDF_MUTED);
+                    doc.text(k[2], x + 6, y + 21);
                 });
+                y += ch + 12;
 
-                currentY = doc.lastAutoTable.finalY + 12;
+                // ---- status breakdown ----
+                pdfSection(doc, 'Status Breakdown', y);
+                const rows = STAT_KEYS.map(k => {
+                    const n = stats[k] || 0, s = installSplit(cars.filter(v => v.status === k));
+                    return [k, n, total > 0 ? (n / total * 100).toFixed(1) + '%' : '-', '', s.w, s.c];
+                });
+                doc.autoTable({
+                    startY: y + 4,
+                    head: [['Status', 'Count', '% of total', 'Distribution', 'Wrong install', 'Correct install']],
+                    body: rows,
+                    theme: 'plain',
+                    margin: { left: 14, right: 14, top: 26, bottom: 18 },
+                    styles: { font: 'helvetica', fontSize: 9, cellPadding: { top: 3.4, bottom: 3.4, left: 3, right: 3 }, textColor: PDF_INK, lineColor: PDF_LINE, lineWidth: { bottom: 0.2 } },
+                    headStyles: { fillColor: PDF_NAVY, textColor: 255, fontStyle: 'bold', fontSize: 8, lineWidth: 0 },
+                    alternateRowStyles: { fillColor: PDF_SOFT },
+                    columnStyles: {
+                        0: { cellWidth: 38, fontStyle: 'bold', cellPadding: { top: 3.4, bottom: 3.4, left: 9, right: 2 } },
+                        1: { cellWidth: 20, halign: 'right', fontStyle: 'bold' },
+                        2: { cellWidth: 24, halign: 'right' },
+                        3: { cellWidth: 'auto' },
+                        4: { cellWidth: 26, halign: 'center' },
+                        5: { cellWidth: 26, halign: 'center' }
+                    },
+                    didParseCell: d => {
+                        if (d.section !== 'body') return;
+                        if (d.column.index === 4 && Number(d.cell.raw) > 0) { d.cell.styles.textColor = [220, 38, 38]; d.cell.styles.fontStyle = 'bold'; }
+                        if (d.column.index === 5 && Number(d.cell.raw) > 0) { d.cell.styles.textColor = [5, 150, 105]; d.cell.styles.fontStyle = 'bold'; }
+                        if (d.column.index === 0) d.cell.styles.textColor = PDF_COL[d.cell.raw] || PDF_INK;
+                    },
+                    didDrawCell: d => {
+                        if (d.section !== 'body') return;
+                        const c = d.cell, key = STAT_KEYS[d.row.index], col = PDF_COL[key] || PDF_BLUE;
+                        if (d.column.index === 0) {
+                            doc.setFillColor(...col); doc.circle(c.x + 4.2, c.y + c.height / 2, 1.4, 'F');
+                        }
+                        if (d.column.index === 3) {
+                            const bx = c.x + 3, bw = c.width - 6, by = c.y + c.height / 2 - 1.5;
+                            doc.setFillColor(226, 232, 240); doc.roundedRect(bx, by, bw, 3, 1.5, 1.5, 'F');
+                            const share = total > 0 ? Math.min(1, (stats[key] || 0) / total) : 0;
+                            if (share > 0) { doc.setFillColor(...col); doc.roundedRect(bx, by, Math.max(bw * share, 2), 3, 1.5, 1.5, 'F'); }
+                        }
+                        // autoTable caches its own fill colour: restore it so row shading does not pick up our dot/bar colour
+                        doc.setFillColor(...PDF_SOFT);
+                    }
+                });
+                y = doc.lastAutoTable.finalY + 6;
+                doc.setFont('helvetica', 'italic'); doc.setFontSize(7.5); doc.setTextColor(...PDF_MUTED);
+                const note = doc.splitTextToSize('Note: category counts may overlap (a vehicle can be Dead and Expired at the same time), so the total is tracked independently and is not the sum of the categories. Wrong / correct install figures come from reviewed vehicle records.', W - 28);
+                doc.text(note, 14, y);
+                y += note.length * 3.6 + 8;
             }
 
-            if (includeVehicles) {
-                let list = window.AppState.vehicles.filter(v => !v.archived);
-                if (window.AppState.selectedCompanyId !== 'ALL') {
-                    list = list.filter(v => v.companyId === window.AppState.selectedCompanyId);
+            if (opts.vehicles) {
+                const list = cars;
+                if (y > H - 60) { doc.addPage(); y = 30; }
+                pdfSection(doc, 'Active Vehicles (' + list.length + ')', y);
+                if (!list.length) {
+                    doc.setFont('helvetica', 'italic'); doc.setFontSize(9); doc.setTextColor(...PDF_MUTED);
+                    doc.text('No active vehicles recorded for this scope.', 14, y + 9);
+                } else {
+                    const showComp = compId === 'ALL';
+                    const head = [showComp ? ['Company', 'Plate #', 'VIN / Chassis', 'Device #', 'SIM #', 'Status', 'Installed', 'Check'] : ['Plate #', 'VIN / Chassis', 'Device #', 'SIM #', 'Status', 'Installed', 'Check']];
+                    const body = list.map(v => {
+                        const r = [v.plateNumber, v.vin || '-', v.deviceNumber || '-', v.simCardNumber || '-', v.status, v.installed || '-', v.wrongInstall ? 'Wrong' : 'Correct'];
+                        return showComp ? [getCompanyName(v.companyId)].concat(r) : r;
+                    });
+                    const sIdx = showComp ? 5 : 4, cIdx = showComp ? 7 : 6;
+                    doc.autoTable({
+                        startY: y + 4,
+                        head, body,
+                        theme: 'plain',
+                        margin: { left: 14, right: 14, top: 26, bottom: 18 },
+                        styles: { font: 'helvetica', fontSize: 7.6, cellPadding: 2.4, textColor: PDF_INK, lineColor: PDF_LINE, lineWidth: { bottom: 0.2 }, overflow: 'linebreak' },
+                        headStyles: { fillColor: PDF_NAVY, textColor: 255, fontStyle: 'bold', fontSize: 7.6, lineWidth: 0 },
+                        alternateRowStyles: { fillColor: PDF_SOFT },
+                        didParseCell: d => {
+                            if (d.section !== 'body') return;
+                            if (d.column.index === sIdx) { d.cell.styles.textColor = PDF_COL[d.cell.raw] || PDF_INK; d.cell.styles.fontStyle = 'bold'; }
+                            if (d.column.index === cIdx) { d.cell.styles.fontStyle = 'bold'; d.cell.styles.textColor = d.cell.raw === 'Wrong' ? [220, 38, 38] : [5, 150, 105]; }
+                        }
+                    });
                 }
-
-                doc.setFontSize(12);
-                doc.setTextColor(0);
-                doc.text(`Active Vehicles List (${list.length})`, 14, currentY);
-
-                const vRows = list.map(v => [
-                    v.plateNumber,
-                    v.vin,
-                    v.deviceNumber || '—',
-                    v.simCardNumber || '—',
-                    v.status,
-                    v.installed
-                ]);
-
-                doc.autoTable({
-                    startY: currentY + 4,
-                    head: [['Plate #', 'VIN / Chassis', 'Device #', 'SIM #', 'Status', 'Installed']],
-                    body: vRows,
-                    theme: 'striped',
-                    headStyles: { fillColor: [3, 105, 161] }
-                });
-
-                currentY = doc.lastAutoTable.finalY + 12;
             }
 
-            doc.save(`CustomReport_${Date.now()}.pdf`);
-            showNotification("Custom PDF generated.", 'success');
+            // ---- running header + footer on every page ----
+            const pages = doc.internal.getNumberOfPages();
+            for (let i = 1; i <= pages; i++) {
+                doc.setPage(i);
+                if (i > 1) {
+                    doc.setFillColor(...PDF_NAVY); doc.rect(0, 0, W, 16, 'F');
+                    doc.setFillColor(...PDF_BLUE); doc.rect(0, 16, W, 0.9, 'F');
+                    pdfLogo(doc, logo, 14, 3.5, 9);
+                    doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(255, 255, 255);
+                    doc.text('Clicklife SecurePath', 26, 9.6);
+                    doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(148, 163, 184);
+                    doc.text(opts.title + '  |  ' + compName, W - 14, 9.6, { align: 'right' });
+                }
+                doc.setDrawColor(...PDF_LINE); doc.setLineWidth(0.3); doc.line(14, H - 13, W - 14, H - 13);
+                doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(...PDF_MUTED);
+                doc.text('Clicklife SecurePath  |  Confidential fleet report', 14, H - 8);
+                doc.text('Page ' + i + ' of ' + pages, W - 14, H - 8, { align: 'right' });
+            }
+
+            const slug = compName.replace(/[^a-z0-9]+/gi, '_').replace(/^_|_$/g, '');
+            doc.save(`Clicklife_${opts.file}_${slug}_${now.toISOString().slice(0, 10)}.pdf`);
+        }
+
+        window.triggerQuickPDF = async function() {
+            await buildReportPDF({ stats: true, vehicles: false, title: 'Fleet Status Report', file: 'Status_Report' });
+            showNotification('Quick PDF downloaded.', 'success');
         };
+
+        window.triggerCustomPDF = async function() {
+            await buildReportPDF({
+                stats: !!document.getElementById('pdfIncludeStats')?.checked,
+                vehicles: !!document.getElementById('pdfIncludeVehicles')?.checked,
+                title: 'Custom Fleet Report', file: 'Custom_Report'
+            });
+            showNotification('Custom PDF generated.', 'success');
+        };
+
 
 
         function renderBackupView() {
@@ -1819,6 +2063,37 @@
         function renderModal() {
             const modal = window.AppState.modal;
             if (!modal) return '';
+
+            if (modal.type === 'STAT_BREAKDOWN') {
+                const list = carsOf(modal.companyId).filter(v => v.status === modal.key);
+                const wrong = list.filter(v => v.wrongInstall), good = list.filter(v => !v.wrongInstall);
+                const manual = getCompanyStats(modal.companyId)[modal.key] || 0;
+                const rows = (arr, isW) => arr.length ? arr.map(v => `<div class="cl-row"><div><div class="font-mono font-bold">${v.plateNumber}</div><div class="text-[11px] text-slate-500">${getCompanyName(v.companyId)} · ${v.deviceNumber || 'No device'}</div></div><button onclick="toggleWrongInstall('${v.id}')" class="cl-btn ${isW ? 'ok' : 'bad'}">${isW ? 'Mark correct' : 'Mark wrong'}</button></div>`).join('') : '<div class="text-xs text-slate-400 py-8 text-center">No vehicles</div>';
+                return `
+                <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm">
+                    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl max-w-3xl w-full p-6 text-slate-800 dark:text-slate-100">
+                        <div class="flex items-start justify-between mb-5">
+                            <div><h3 class="text-lg font-bold">${modal.key} vehicles</h3><p class="text-xs text-slate-500 mt-1">${getCompanyName(modal.companyId)}</p></div>
+                            <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-xl leading-none" aria-label="Close">&times;</button>
+                        </div>
+                        <div class="cl-kpis mb-5">
+                            <div class="cl-kpi"><b>${manual}</b><span>Manual counter</span></div>
+                            <div class="cl-kpi"><b>${list.length}</b><span>Registered vehicles</span></div>
+                            <div class="cl-kpi w"><b>${wrong.length}</b><span>Wrong installation</span></div>
+                            <div class="cl-kpi c"><b>${good.length}</b><span>Correct installation</span></div>
+                        </div>
+                        ${manual !== list.length ? '<p class="text-[11px] text-slate-500 mb-4">The manual counter and registered vehicle records differ. This breakdown covers registered vehicles only.</p>' : ''}
+                        <div class="cl-cols">
+                            <div><div class="cl-colh"><span>Wrong installation</span><span class="cl-pill w">${wrong.length}</span></div><div class="cl-list">${rows(wrong, true)}</div></div>
+                            <div><div class="cl-colh"><span>Correct installation</span><span class="cl-pill c">${good.length}</span></div><div class="cl-list">${rows(good, false)}</div></div>
+                        </div>
+                        <div class="mt-5 flex justify-end space-x-2">
+                            <button onclick="openStatInCars('${modal.companyId}','${modal.key}')" class="cl-btn ghost px-4 py-2 text-xs">Open in Vehicles</button>
+                            <button onclick="closeModal()" class="cl-btn px-4 py-2 text-xs">Done</button>
+                        </div>
+                    </div>
+                </div>`;
+            }
 
             if (modal.type === 'STAT_REASON') {
                 return `
