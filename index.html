@@ -1623,14 +1623,18 @@
                     <div class="cl-report-card pdf bg-white dark:bg-slate-800 p-6 md:p-7 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col justify-between">
                         <div>
                             <div class="flex items-start justify-between gap-4"><div><div class="cl-report-kicker !text-rose-600 dark:!text-rose-400">Executive document</div><h3 class="text-2xl font-extrabold mt-1">Professional PDF report</h3></div><span class="cl-format-preview">A4 PDF</span></div>
-                            <p class="text-sm text-slate-500 dark:text-slate-400 mt-3 leading-relaxed max-w-lg">Create a branded report with the ClickLife wordmark, live scope, KPI cards, status analysis and a refined vehicle table.</p>
-                            <div class="mt-6 rounded-xl bg-slate-50 dark:bg-slate-900/60 p-4 border border-slate-200 dark:border-slate-700 space-y-3">
+                            <p class="text-sm text-slate-500 dark:text-slate-400 mt-3 leading-relaxed max-w-lg">Choose the company and the report focus (Signal, Dead, wrong installations or the full fleet). The document is organised as: cover, executive summary, status analysis, vehicle register.</p>
+                            <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div><label class="block text-xs font-bold text-slate-500 mb-2">Company</label><select id="pdfCompany" class="w-full py-3 px-3 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg"><option value="ALL" ${window.AppState.selectedCompanyId === 'ALL' ? 'selected' : ''}>All Companies</option>${window.AppState.companies.map(c => `<option value="${c.id}" ${window.AppState.selectedCompanyId === c.id ? 'selected' : ''}>${c.name}</option>`).join('')}</select></div>
+                                <div><label class="block text-xs font-bold text-slate-500 mb-2">Report focus</label><select id="pdfScope" class="w-full py-3 px-3 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg"><option value="ALL">Full fleet (all statuses)</option><optgroup label="Health"><option value="Signal">Signal cars (online)</option><option value="Dead">Dead cars</option><option value="Failing">Failing cars</option></optgroup><optgroup label="Lifecycle"><option value="Deactivated">Deactivated</option><option value="Not Renewed">Not Renewed</option><option value="Not Activated">Not Activated</option><option value="Expired">Expired</option><option value="Removed">Removed</option></optgroup><optgroup label="Installation"><option value="WRONG">Wrong installations</option></optgroup></select></div>
+                            </div>
+                            <div class="mt-4 rounded-xl bg-slate-50 dark:bg-slate-900/60 p-4 border border-slate-200 dark:border-slate-700 space-y-3">
                                 <div class="text-[10px] uppercase tracking-[.14em] font-extrabold text-slate-400">Include in this document</div>
-                                <label class="flex items-center gap-3 text-xs font-bold"><input type="checkbox" id="pdfIncludeStats" checked class="rounded text-brand-600 focus:ring-brand-500"><span>Dashboard statistics & status breakdown</span></label>
-                                <label class="flex items-center gap-3 text-xs font-bold"><input type="checkbox" id="pdfIncludeVehicles" checked class="rounded text-brand-600 focus:ring-brand-500"><span>Active vehicles table</span></label>
+                                <label class="flex items-center gap-3 text-xs font-bold"><input type="checkbox" id="pdfIncludeStats" checked class="rounded text-brand-600 focus:ring-brand-500"><span>Executive summary (Signal vs Dead) & status breakdown</span></label>
+                                <label class="flex items-center gap-3 text-xs font-bold"><input type="checkbox" id="pdfIncludeVehicles" checked class="rounded text-brand-600 focus:ring-brand-500"><span>Vehicle register for the selected focus</span></label>
                             </div>
                         </div>
-                        <div class="mt-8 flex items-center gap-2"><button onclick="triggerQuickPDF()" class="flex-1 py-3.5 px-3 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-extrabold transition text-center">Quick report</button><button onclick="triggerCustomPDF()" class="flex-1 py-3.5 px-3 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-xs font-extrabold transition text-center">Export professional PDF</button></div>
+                        <div class="mt-8 flex items-center gap-2"><button onclick="triggerQuickPDF()" class="flex-1 py-3.5 px-3 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-extrabold transition text-center">Quick summary</button><button onclick="triggerCustomPDF()" class="flex-1 py-3.5 px-3 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-xs font-extrabold transition text-center">Export professional PDF</button></div>
                     </div>
                 </div>
             </div>`;
@@ -1717,11 +1721,44 @@
             doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(...PDF_MUTED); doc.text('TOTAL VEHICLES', cx, cy+7, {align:'center'});
         }
 
+        const PDF_SCOPES = { ALL: 'Full Fleet Report', Signal: 'Signal Vehicles Report', Dead: 'Dead Vehicles Report', Failing: 'Failing Vehicles Report', Deactivated: 'Deactivated Vehicles Report', 'Not Renewed': 'Not Renewed Vehicles Report', 'Not Activated': 'Not Activated Vehicles Report', Expired: 'Expired Vehicles Report', Removed: 'Removed Vehicles Report', WRONG: 'Wrong Installations Report' };
+        const PDF_GREEN = [14, 165, 163], PDF_RED = [185, 28, 28];
+
+        function pdfScopeCars(cars, scope) {
+            if (!scope || scope === 'ALL') return cars;
+            if (scope === 'WRONG') return cars.filter(v => v.wrongInstall);
+            return cars.filter(v => v.status === scope);
+        }
+
+        function pdfCard(doc, x, y, w, h, label, value, sub, col) {
+            doc.setFillColor(255, 255, 255); doc.setDrawColor(...PDF_LINE); doc.setLineWidth(0.35);
+            doc.roundedRect(x, y, w, h, 3, 3, 'FD');
+            doc.setFillColor(...col); doc.roundedRect(x, y, 2.6, h, 1.3, 1.3, 'F');
+            doc.setFont('helvetica', 'bold'); doc.setFontSize(7.2); doc.setTextColor(...PDF_MUTED);
+            doc.text(label.toUpperCase(), x + 8, y + 8);
+            doc.setFontSize(19); doc.setTextColor(...PDF_NAVY); doc.text(String(value), x + 8, y + 18.5);
+            doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(...PDF_MUTED); doc.text(sub, x + 8, y + h - 3.2);
+        }
+
+        function pdfVsCard(doc, x, y, w, h, label, note, value, pct, col) {
+            doc.setFillColor(255, 255, 255); doc.setDrawColor(...PDF_LINE); doc.setLineWidth(0.35);
+            doc.roundedRect(x, y, w, h, 3.5, 3.5, 'FD');
+            doc.setFillColor(...col); doc.roundedRect(x, y, w, 3, 1.5, 1.5, 'F');
+            doc.setFont('helvetica', 'bold'); doc.setFontSize(8.2); doc.setTextColor(...col);
+            doc.text(label.toUpperCase(), x + 9, y + 13);
+            doc.setFontSize(28); doc.setTextColor(...PDF_NAVY); doc.text(String(value), x + 9, y + 27);
+            doc.setFontSize(16); doc.setTextColor(...col); doc.text(pct, x + w - 9, y + 27, { align: 'right' });
+            doc.setFont('helvetica', 'normal'); doc.setFontSize(7.6); doc.setTextColor(...PDF_MUTED); doc.text(note, x + 9, y + h - 4);
+        }
+
         async function buildReportPDF(opts) {
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF({ unit: 'mm', format: 'a4' });
             const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight();
-            const compId = window.AppState.selectedCompanyId;
+            const compId = opts.compId || window.AppState.selectedCompanyId;
+            const scope = opts.scope || 'ALL';
+            const scopeTitle = PDF_SCOPES[scope] || PDF_SCOPES.ALL;
+            opts.title = scopeTitle;
             const compName = getCompanyName(compId);
             const stats = getCompanyStats(compId);
             const total = stats.Total || 0;
@@ -1729,99 +1766,114 @@
             const now = new Date();
             const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) + '  ' + now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
             const cars = carsOf(compId);
+            const pct = (n) => total > 0 ? (n / total * 100).toFixed(1) + '%' : '0.0%';
 
-            // ---- redesigned executive cover ----
+            // ================= 1. COVER =================
             doc.setFillColor(...PDF_NAVY); doc.rect(0, 0, W, 58, 'F');
             doc.setFillColor(...PDF_BLUE); doc.rect(0, 58, W, 2.2, 'F');
-            doc.setFillColor(14, 165, 163); doc.rect(14, 12, 2.2, 30, 'F');
-            // The supplied logo is a white wordmark intended for a dark background.
+            doc.setFillColor(...PDF_GREEN); doc.rect(14, 12, 2.2, 30, 'F');
             pdfLogo(doc, logo, 21, 13, 62, 23.6);
             doc.setFont('helvetica', 'bold'); doc.setFontSize(19); doc.setTextColor(255, 255, 255);
-            doc.text(opts.title, W - 14, 20, { align: 'right' });
+            doc.text(scopeTitle, W - 14, 20, { align: 'right' });
             doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(191, 219, 254);
             doc.text('GPS fleet intelligence / operations report', W - 14, 28, { align: 'right' });
-            doc.setFont('helvetica', 'normal'); doc.setFontSize(7.8); doc.setTextColor(148, 163, 184);
+            doc.setFontSize(7.8); doc.setTextColor(148, 163, 184);
             doc.text('Generated ' + dateStr, W - 14, 36, { align: 'right' });
             doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(125, 211, 252);
             doc.text('CLICKLIFE SECUREPATH', 21, 49);
-            doc.setFont('helvetica', 'bold'); doc.setFontSize(24); doc.setTextColor(...PDF_NAVY);
+            doc.setFontSize(24); doc.setTextColor(...PDF_NAVY);
             doc.text('Official Fleet Operations Report', 21, 82);
             doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(...PDF_MUTED);
             doc.text('Prepared for ' + compName, 21, 91);
             doc.setDrawColor(...PDF_LINE); doc.setLineWidth(0.4); doc.line(21, 101, W - 21, 101);
             doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(...PDF_MUTED);
-            doc.text('REPORT DATE', 21, 112); doc.text('REPORT TYPE', 84, 112); doc.text('SYSTEM', 147, 112);
+            doc.text('REPORT DATE', 21, 112); doc.text('REPORT FOCUS', 84, 112); doc.text('SYSTEM', 147, 112);
             doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(...PDF_INK);
-            doc.text(dateStr, 21, 121); doc.text(opts.title, 84, 121); doc.text('Clicklife SecurePath', 147, 121);
-            doc.setFillColor(239,246,255); doc.roundedRect(21, 137, W - 42, 25, 3, 3, 'F');
+            doc.text(dateStr, 21, 121); doc.text(scopeTitle.replace(' Report', ''), 84, 121); doc.text('Clicklife SecurePath', 147, 121);
+            // contents box
+            doc.setFillColor(239, 246, 255); doc.roundedRect(21, 137, W - 42, 42, 3, 3, 'F');
             doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(...PDF_BLUE);
-            doc.text('DOCUMENT CONTROL', 28, 147);
-            doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(...PDF_INK);
-            doc.text('This report is generated from the SecurePath fleet register for operational review.', 28, 155);
+            doc.text('CONTENTS', 28, 147);
+            doc.setFont('helvetica', 'normal'); doc.setFontSize(8.8); doc.setTextColor(...PDF_INK);
+            const toc = [];
+            if (opts.stats) { toc.push('Executive summary  -  Signal vs Dead'); toc.push('Status analysis and breakdown'); }
+            if (opts.vehicles) toc.push('Vehicle register  -  ' + scopeTitle.replace(' Report', ''));
+            toc.forEach((t, i) => doc.text((i + 1) + '.   ' + t, 28, 156 + i * 7));
             doc.addPage();
 
-            // ---- scope card ----
-            doc.setFillColor(248, 250, 252); doc.setDrawColor(...PDF_LINE); doc.setLineWidth(0.35);
-            doc.roundedRect(14, 68, W - 28, 27, 3.5, 3.5, 'FD');
-            doc.setFillColor(...PDF_BLUE); doc.roundedRect(14, 68, 2.4, 27, 1.2, 1.2, 'F');
-            doc.setFont('helvetica', 'bold'); doc.setFontSize(7.4); doc.setTextColor(...PDF_MUTED);
-            doc.text('PREPARED FOR', 22, 77);
-            doc.setFont('helvetica', 'bold'); doc.setFontSize(17); doc.setTextColor(...PDF_NAVY);
-            doc.text(compName, 22, 87);
-            doc.setFont('helvetica', 'bold'); doc.setFontSize(7.4); doc.setTextColor(...PDF_MUTED);
-            doc.text('DOCUMENT SCOPE', W - 86, 77);
-            doc.setFont('helvetica', 'normal'); doc.setFontSize(9.2); doc.setTextColor(...PDF_INK);
-            doc.text(opts.vehicles && opts.stats ? 'Fleet overview + vehicle register' : (opts.stats ? 'Fleet overview' : 'Vehicle register'), W - 86, 87);
+            // ================= 2. SCOPE + EXECUTIVE SUMMARY =================
+            pdfSection(doc, 'Report Scope', 32);
+            doc.setFillColor(...PDF_SOFT); doc.setDrawColor(...PDF_LINE); doc.setLineWidth(0.35);
+            doc.roundedRect(14, 39, W - 28, 22, 3.5, 3.5, 'FD');
+            doc.setFillColor(...PDF_BLUE); doc.roundedRect(14, 39, 2.4, 22, 1.2, 1.2, 'F');
+            doc.setFont('helvetica', 'bold'); doc.setFontSize(7.2); doc.setTextColor(...PDF_MUTED);
+            doc.text('PREPARED FOR', 22, 47); doc.text('REPORT FOCUS', W / 2 + 6, 47);
+            doc.setFontSize(13); doc.setTextColor(...PDF_NAVY);
+            doc.text(compName, 22, 56); doc.text(scopeTitle.replace(' Report', ''), W / 2 + 6, 56);
 
-            let y = 108;
-
+            let y = 76;
             if (opts.stats) {
-                // ---- KPI cards ----
-                const gap = 5, cw = (W - 28 - gap) / 2, ch = 27;
+                const sig = stats.Signal || 0, dead = stats.Dead || 0;
+                const other = Math.max(0, total - sig - dead);
                 const wrong = installSplit(cars).w;
-                const pct = v => total > 0 ? Math.round(v / total * 100) + '% of total' : '-';
-                const kpis = [
-                    ['Total vehicles', total, 'Tracked fleet size', PDF_BLUE],
-                    ['Online (Signal)', stats.Signal || 0, pct(stats.Signal || 0), [14, 165, 163]],
-                    ['Dead', stats.Dead || 0, pct(stats.Dead || 0), [185, 28, 28]],
-                    ['Wrong installations', wrong, 'Flagged for review', [217, 119, 6]]
-                ];
-                kpis.forEach((k, i) => {
-                    const col = i % 2, row = Math.floor(i / 2);
-                    const x = 14 + col * (cw + gap), ky = y + row * (ch + gap);
-                    doc.setFillColor(255,255,255); doc.setDrawColor(...PDF_LINE); doc.setLineWidth(0.35);
-                    doc.roundedRect(x, ky, cw, ch, 3, 3, 'FD');
-                    doc.setFillColor(...k[3]); doc.roundedRect(x, ky, 3, ch, 1.5, 1.5, 'F');
-                    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(...PDF_MUTED);
-                    doc.text(k[0].toUpperCase(), x + 10, ky + 9);
-                    doc.setFont('helvetica', 'bold'); doc.setFontSize(22); doc.setTextColor(...PDF_NAVY);
-                    doc.text(String(k[1]), x + 10, ky + 20);
-                    doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(...PDF_MUTED);
-                    doc.text(k[2], x + cw - 8, ky + 20, { align: 'right' });
-                });
-                y += (ch * 2) + gap + 13;
 
-                // ---- visual status summary ----
+                // --- Signal vs Dead ---
+                pdfSection(doc, 'Executive Summary  -  Signal vs Dead', y);
+                const cw = (W - 28 - 8) / 2;
+                pdfVsCard(doc, 14, y + 8, cw, 38, 'Signal  |  Online', 'Devices reporting normally', sig, pct(sig), PDF_GREEN);
+                pdfVsCard(doc, 14 + cw + 8, y + 8, cw, 38, 'Dead  |  Offline', 'Devices with no communication', dead, pct(dead), PDF_RED);
+                doc.setFillColor(...PDF_NAVY); doc.circle(W / 2, y + 27, 4.6, 'F');
+                doc.setFont('helvetica', 'bold'); doc.setFontSize(7.4); doc.setTextColor(255, 255, 255); doc.text('VS', W / 2, y + 29.2, { align: 'center' });
+
+                // --- fleet health bar ---
+                const by = y + 58, bw = W - 28, denom = Math.max(total, sig + dead) || 1;
+                doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(...PDF_MUTED); doc.text('FLEET HEALTH', 14, by - 3);
+                doc.setFillColor(226, 232, 240); doc.roundedRect(14, by, bw, 7, 3.5, 3.5, 'F');
+                let bx = 14;
+                [[sig, PDF_GREEN], [other, [148, 163, 184]], [dead, PDF_RED]].forEach(seg => {
+                    const w = bw * seg[0] / denom;
+                    if (w > 0.4) { doc.setFillColor(...seg[1]); doc.rect(bx, by, w, 7, 'F'); bx += w; }
+                });
+                doc.setFillColor(255, 255, 255); doc.setDrawColor(255, 255, 255); doc.setLineWidth(1.6);
+                doc.roundedRect(13, by - 1, bw + 2, 9, 4.5, 4.5, 'S');
+                const lg = [['Signal', sig, PDF_GREEN], ['Other statuses', other, [148, 163, 184]], ['Dead', dead, PDF_RED]];
+                lg.forEach((l, i) => {
+                    const lx = 14 + i * 62;
+                    doc.setFillColor(...l[2]); doc.circle(lx + 1.6, by + 14.2, 1.6, 'F');
+                    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(...PDF_INK); doc.text(l[0], lx + 5, by + 15.2);
+                    doc.setFont('helvetica', 'normal'); doc.setTextColor(...PDF_MUTED); doc.text(l[1] + '  (' + pct(l[1]) + ')', lx + 5 + doc.getTextWidth(l[0]) + 2.5, by + 15.2);
+                });
+
+                // --- key indicators ---
+                const ky = by + 30;
+                pdfSection(doc, 'Key Indicators', ky);
+                const k4 = (W - 28 - 3 * 4) / 4, kr = ky + 8;
+                const inst = installSplit(cars);
+                [['Total vehicles', total, 'Tracked fleet size', PDF_BLUE],
+                 ['Wrong install', wrong, 'Flagged for review', [217, 119, 6]],
+                 ['Correct install', inst.c, 'Verified records', [5, 150, 105]],
+                 ['Failing', stats.Failing || 0, pct(stats.Failing || 0) + ' of total', [245, 158, 11]]]
+                    .forEach((k, i) => pdfCard(doc, 14 + i * (k4 + 4), kr, k4, 28, k[0], k[1], k[2], k[3]));
+
+                // ================= 3. STATUS ANALYSIS =================
                 doc.addPage();
                 pdfSection(doc, 'Fleet Status Overview', 32);
                 pdfDonut(doc, 54, 69, 21, stats, total);
                 doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(...PDF_MUTED);
                 doc.text('Current distribution of vehicles by operational status.', 92, 45);
                 let ly = 57;
-                const legendKeys = STAT_KEYS.filter(k => (stats[k] || 0) > 0);
-                legendKeys.forEach(key => {
-                    const swatch = key === 'Signal' ? [14,165,163] : (key === 'Dead' || key === 'Expired' ? [185,28,28] : [37,99,235]);
+                STAT_KEYS.filter(k => (stats[k] || 0) > 0).forEach(key => {
+                    const swatch = key === 'Signal' ? PDF_GREEN : (key === 'Dead' || key === 'Expired' ? PDF_RED : [37, 99, 235]);
                     doc.setFillColor(...swatch); doc.roundedRect(92, ly - 3.2, 3.2, 3.2, 1.1, 1.1, 'F');
-                    doc.setFont('helvetica','bold'); doc.setFontSize(8.5); doc.setTextColor(...PDF_INK); doc.text(key, 99, ly);
-                    doc.setFont('helvetica','normal'); doc.setTextColor(...PDF_MUTED); doc.text(String(stats[key]) + ' vehicles  /  ' + (total ? (stats[key]/total*100).toFixed(1) : '0.0') + '%', 150, ly);
+                    doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5); doc.setTextColor(...PDF_INK); doc.text(key, 99, ly);
+                    doc.setFont('helvetica', 'normal'); doc.setTextColor(...PDF_MUTED); doc.text(String(stats[key]) + ' vehicles  /  ' + (total ? (stats[key] / total * 100).toFixed(1) : '0.0') + '%', 150, ly);
                     ly += 9;
                 });
 
-                // ---- status breakdown ----
                 pdfSection(doc, 'Status Breakdown', 124);
                 const rows = STAT_KEYS.map(k => {
                     const n = stats[k] || 0, s = installSplit(cars.filter(v => v.status === k));
-                    return [k, n, total > 0 ? (n / total * 100).toFixed(1) + '%' : '-', '', s.w, s.c];
+                    return [k, n, pct(n), '', s.w, s.c];
                 });
                 doc.autoTable({
                     startY: 130,
@@ -1830,65 +1882,58 @@
                     theme: 'plain',
                     margin: { left: 14, right: 14, top: 26, bottom: 18 },
                     styles: { font: 'helvetica', fontSize: 9.3, cellPadding: { top: 4.2, bottom: 4.2, left: 3.5, right: 3.5 }, textColor: PDF_INK, lineColor: PDF_LINE, lineWidth: { bottom: 0.2 } },
-                    headStyles: { fillColor: PDF_NAVY, textColor: 255, fontStyle: 'bold', fontSize: 8.8, cellPadding: { top: 4, bottom: 4, left: 3.5, right: 3.5 }, lineWidth: 0 },
+                    headStyles: { fillColor: PDF_NAVY, textColor: 255, fontStyle: 'bold', fontSize: 8.8, lineWidth: 0 },
                     alternateRowStyles: { fillColor: PDF_SOFT },
-                    columnStyles: {
-                        0: { cellWidth: 38, fontStyle: 'bold', cellPadding: { top: 4.2, bottom: 4.2, left: 3.5, right: 2 } },
-                        1: { cellWidth: 20, halign: 'right', fontStyle: 'bold' },
-                        2: { cellWidth: 24, halign: 'right' },
-                        3: { cellWidth: 'auto' },
-                        4: { cellWidth: 26, halign: 'center' },
-                        5: { cellWidth: 26, halign: 'center' }
-                    },
+                    columnStyles: { 0: { cellWidth: 38, fontStyle: 'bold' }, 1: { cellWidth: 20, halign: 'right', fontStyle: 'bold' }, 2: { cellWidth: 24, halign: 'right' }, 3: { cellWidth: 'auto' }, 4: { cellWidth: 26, halign: 'center' }, 5: { cellWidth: 26, halign: 'center' } },
                     didParseCell: d => {
                         if (d.section !== 'body') return;
-                        if (d.column.index === 4 && Number(d.cell.raw) > 0) { d.cell.styles.textColor = [185, 28, 28]; d.cell.styles.fontStyle = 'bold'; }
+                        if (d.column.index === 4 && Number(d.cell.raw) > 0) { d.cell.styles.textColor = PDF_RED; d.cell.styles.fontStyle = 'bold'; }
                         if (d.column.index === 5 && Number(d.cell.raw) > 0) { d.cell.styles.textColor = [14, 120, 115]; d.cell.styles.fontStyle = 'bold'; }
                         if (d.column.index === 0) { d.cell.styles.textColor = PDF_NAVY; d.cell.styles.fontStyle = 'bold'; }
                     },
                     didDrawCell: d => {
-                        if (d.section !== 'body') return;
+                        if (d.section !== 'body' || d.column.index !== 3) return;
                         const c = d.cell, key = STAT_KEYS[d.row.index];
-                        if (d.column.index === 3) {
-                            const bx = c.x + 3, bw = c.width - 6, by = c.y + c.height / 2 - 1.8;
-                            doc.setFillColor(226, 232, 240); doc.roundedRect(bx, by, bw, 3.6, 1.8, 1.8, 'F');
-                            const share = total > 0 ? Math.min(1, (stats[key] || 0) / total) : 0;
-                            const barCol = (key === 'Dead' || key === 'Expired') ? [185, 28, 28] : [14, 165, 163];
-                            if (share > 0) { doc.setFillColor(...barCol); doc.roundedRect(bx, by, Math.max(bw * share, 2.2), 3.6, 1.8, 1.8, 'F'); }
-                        }
-                        doc.setFillColor(...PDF_SOFT);
+                        const bx2 = c.x + 3, bw2 = c.width - 6, by2 = c.y + c.height / 2 - 1.8;
+                        doc.setFillColor(226, 232, 240); doc.roundedRect(bx2, by2, bw2, 3.6, 1.8, 1.8, 'F');
+                        const share = total > 0 ? Math.min(1, (stats[key] || 0) / total) : 0;
+                        const barCol = (key === 'Dead' || key === 'Expired') ? PDF_RED : (key === 'Signal' ? PDF_GREEN : [100, 116, 139]);
+                        if (share > 0) { doc.setFillColor(...barCol); doc.roundedRect(bx2, by2, Math.max(bw2 * share, 2.2), 3.6, 1.8, 1.8, 'F'); }
                     }
                 });
                 y = doc.lastAutoTable.finalY + 9;
                 doc.setFont('helvetica', 'italic'); doc.setFontSize(7.5); doc.setTextColor(...PDF_MUTED);
                 const note = doc.splitTextToSize('Note: category counts may overlap (a vehicle can be Dead and Expired at the same time), so the total is tracked independently and is not the sum of the categories. Wrong / correct install figures come from reviewed vehicle records.', W - 28);
                 doc.text(note, 14, y);
-                y += note.length * 3.6 + 8;
             }
 
+            // ================= 4. VEHICLE REGISTER =================
             if (opts.vehicles) {
-                const list = cars;
-                if (y > H - 60) { doc.addPage(); y = 30; }
-                pdfSection(doc, 'Active Vehicles (' + list.length + ')', y);
+                const list = pdfScopeCars(cars, scope).slice().sort((a, b) =>
+                    getCompanyName(a.companyId).localeCompare(getCompanyName(b.companyId)) || String(a.plateNumber).localeCompare(String(b.plateNumber)));
+                const focus = scopeTitle.replace(' Report', '');
+                if (opts.stats) { doc.addPage(); y = 32; }
+                pdfSection(doc, 'Vehicle Register  -  ' + focus + ' (' + list.length + ')', y);
                 if (!list.length) {
                     doc.setFont('helvetica', 'italic'); doc.setFontSize(9); doc.setTextColor(...PDF_MUTED);
-                    doc.text('No active vehicles recorded for this scope.', 14, y + 9);
+                    doc.text('No vehicles match this focus for the selected company.', 14, y + 11);
                 } else {
                     const showComp = compId === 'ALL';
-                    const head = [showComp ? ['Company', 'Plate #', 'VIN / Chassis', 'Device #', 'SIM #', 'Status', 'Installed', 'Check'] : ['Plate #', 'VIN / Chassis', 'Device #', 'SIM #', 'Status', 'Installed', 'Check']];
-                    const body = list.map(v => {
+                    const head = [showComp ? ['#', 'Company', 'Plate #', 'VIN / Chassis', 'Device #', 'SIM #', 'Status', 'Installed', 'Check'] : ['#', 'Plate #', 'VIN / Chassis', 'Device #', 'SIM #', 'Status', 'Installed', 'Check']];
+                    const body = list.map((v, i) => {
                         const r = [v.plateNumber, v.vin || '-', v.deviceNumber || '-', v.simCardNumber || '-', v.status, v.installed || '-', v.wrongInstall ? 'Wrong' : 'Correct'];
-                        return showComp ? [getCompanyName(v.companyId)].concat(r) : r;
+                        return [i + 1].concat(showComp ? [getCompanyName(v.companyId)].concat(r) : r);
                     });
-                    const sIdx = showComp ? 5 : 4, cIdx = showComp ? 7 : 6;
+                    const sIdx = showComp ? 6 : 5, cIdx = showComp ? 8 : 7;
                     doc.autoTable({
-                        startY: y + 4,
+                        startY: y + 5,
                         head, body,
                         theme: 'plain',
                         margin: { left: 14, right: 14, top: 26, bottom: 18 },
                         styles: { font: 'helvetica', fontSize: 7.6, cellPadding: 2.4, textColor: PDF_INK, lineColor: PDF_LINE, lineWidth: { bottom: 0.2 }, overflow: 'linebreak' },
                         headStyles: { fillColor: PDF_NAVY, textColor: 255, fontStyle: 'bold', fontSize: 7.6, lineWidth: 0 },
                         alternateRowStyles: { fillColor: PDF_SOFT },
+                        columnStyles: { 0: { cellWidth: 9, textColor: PDF_MUTED } },
                         didParseCell: d => {
                             if (d.section !== 'body') return;
                             if (d.column.index === sIdx) { d.cell.styles.textColor = PDF_COL[d.cell.raw] || PDF_INK; d.cell.styles.fontStyle = 'bold'; }
@@ -1909,7 +1954,7 @@
                     doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(255, 255, 255);
                     doc.text('SecurePath', 41, 9.6);
                     doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(148, 163, 184);
-                    doc.text(opts.title + '  |  ' + compName, W - 14, 9.6, { align: 'right' });
+                    doc.text(scopeTitle + '  |  ' + compName, W - 14, 9.6, { align: 'right' });
                 }
                 doc.setDrawColor(...PDF_LINE); doc.setLineWidth(0.3); doc.line(14, H - 13, W - 14, H - 13);
                 doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(...PDF_MUTED);
@@ -1918,21 +1963,29 @@
             }
 
             const slug = compName.replace(/[^a-z0-9]+/gi, '_').replace(/^_|_$/g, '');
-            doc.save(`Clicklife_${opts.file}_${slug}_${now.toISOString().slice(0, 10)}.pdf`);
+            const scopeSlug = scope.replace(/[^a-z0-9]+/gi, '_');
+            doc.save(`Clicklife_${scopeSlug}_${slug}_${now.toISOString().slice(0, 10)}.pdf`);
+        }
+
+        function pdfFormChoice() {
+            return {
+                compId: document.getElementById('pdfCompany')?.value || window.AppState.selectedCompanyId,
+                scope: document.getElementById('pdfScope')?.value || 'ALL'
+            };
         }
 
         window.triggerQuickPDF = async function() {
-            await buildReportPDF({ stats: true, vehicles: false, title: 'Fleet Status Report', file: 'Status_Report' });
-            showNotification('Quick PDF downloaded.', 'success');
+            const c = pdfFormChoice();
+            await buildReportPDF({ stats: true, vehicles: false, compId: c.compId, scope: 'ALL' });
+            showNotification('Quick summary downloaded.', 'success');
         };
 
         window.triggerCustomPDF = async function() {
-            await buildReportPDF({
-                stats: !!document.getElementById('pdfIncludeStats')?.checked,
-                vehicles: !!document.getElementById('pdfIncludeVehicles')?.checked,
-                title: 'Custom Fleet Report', file: 'Custom_Report'
-            });
-            showNotification('Custom PDF generated.', 'success');
+            const c = pdfFormChoice();
+            const stats = !!document.getElementById('pdfIncludeStats')?.checked, vehicles = !!document.getElementById('pdfIncludeVehicles')?.checked;
+            if (!stats && !vehicles) { showNotification('Select at least one section to include.', 'error'); return; }
+            await buildReportPDF({ stats, vehicles, compId: c.compId, scope: c.scope });
+            showNotification('Professional PDF generated.', 'success');
         };
 
 
