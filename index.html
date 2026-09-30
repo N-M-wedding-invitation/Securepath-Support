@@ -307,23 +307,30 @@
         .cl-logo-img { object-fit: contain; object-position: left center; }
         .cl-brand .cl-logo-img { max-width: 152px; }
         .cl-brand > span { display: none; }
-        .cl-report-hero { position: relative; overflow: hidden; background: linear-gradient(135deg, #0f172a 0%, #162a52 58%, #1d4ed8 140%) !important; color: #fff; border: 0 !important; box-shadow: 0 18px 42px -24px rgba(15,23,42,.55) !important; }
-        .cl-report-hero:after { content: ''; position: absolute; width: 240px; height: 240px; right: -56px; top: -92px; border: 1px solid rgba(255,255,255,.14); border-radius: 50%; box-shadow: 0 0 0 28px rgba(255,255,255,.035), 0 0 0 56px rgba(255,255,255,.025); }
-        .cl-report-logo-panel { display:inline-flex; align-items:center; min-height:62px; padding:4px 0; background:transparent; border:0; border-radius:14px; position:relative; z-index:1; }
-        .cl-report-hero .cl-logo-img { width: 215px; height: auto; max-height: 68px; position: relative; z-index: 1; }
-        .cl-report-hero h2 { letter-spacing:-.04em; }
-        .cl-report-hero p { max-width: 590px; }
-        .cl-report-card { box-shadow: 0 14px 32px -26px rgba(15,23,42,.55) !important; }
-        .cl-report-card h3 { letter-spacing: -.025em; }
-        .cl-report-card .cl-report-kicker { letter-spacing:.13em; }
-        .cl-report-kicker { color: #93c5fd; font-size: 10px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
-        .cl-report-badge { display: inline-flex; align-items: center; gap: 7px; border: 1px solid rgba(147,197,253,.35); background: rgba(255,255,255,.08); color: #dbeafe; border-radius: 999px; padding: 7px 11px; font-size: 11px; font-weight: 700; }
-        .cl-report-card { position: relative; overflow: hidden; }
-        .cl-report-card:before { content: ''; position:absolute; left:0; top:0; bottom:0; width:4px; background: linear-gradient(#2563eb,#60a5fa); }
-        .cl-report-card.pdf:before { background: linear-gradient(#be123c,#fb7185); }
-        .cl-report-card.excel:before { background: linear-gradient(#047857,#34d399); }
-        .cl-report-card h3 { letter-spacing: -.01em; }
-        .cl-format-preview { display:inline-flex; align-items:center; gap:7px; color:#047857; background:#ecfdf5; border:1px solid #a7f3d0; padding:5px 9px; border-radius:999px; font-size:10px; font-weight:800; }
+        /* Unified reports UI - neutral, one accent */
+        .rp-wrap { max-width: 880px; }
+        .rp-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:22px; }
+        .rp-head h2 { font-size:12px; letter-spacing:.22em; text-transform:uppercase; font-weight:700; color:var(--mut); }
+        .rp-logo { height:26px; width:auto; opacity:.9; }
+        .rp-tiles { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:22px; }
+        .rp-tile { padding:9px 15px; font-size:12px; font-weight:600; border:1px solid var(--line); border-radius:8px; background:transparent !important; color:var(--txt) !important; box-shadow:none !important; }
+        .rp-tile:hover { border-color:var(--mut); }
+        .rp-tile.on { border-color:var(--txt); box-shadow:inset 0 -2px 0 var(--txt) !important; }
+        .rp-panel { border:1px solid var(--line); border-radius:12px; background:var(--card); padding:26px; }
+        .rp-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; margin-bottom:16px; }
+        .rp-grid label span { display:block; font-size:10px; letter-spacing:.14em; text-transform:uppercase; font-weight:700; color:var(--mut); margin-bottom:6px; }
+        .rp-grid select { width:100%; padding:10px 12px; font-size:12px; }
+        .rp-filters { padding-top:16px; border-top:1px solid var(--line); }
+        .rp-opts { display:flex; flex-wrap:wrap; gap:22px; padding:6px 0 20px; font-size:12px; font-weight:600; }
+        .rp-opts input { margin-right:6px; }
+        .rp-preview { display:flex; align-items:flex-end; justify-content:space-between; gap:20px; padding:20px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+        .rp-k { font-size:10px; letter-spacing:.14em; font-weight:700; color:var(--mut); }
+        .rp-n { font-size:34px; font-weight:700; line-height:1.1; margin-top:4px; }
+        .rp-sub { font-size:11.5px; color:var(--mut); text-align:right; line-height:1.7; }
+        .rp-actions { display:flex; gap:10px; padding-top:20px; }
+        .rp-btn { padding:11px 22px; font-size:12px; font-weight:700; border:1px solid var(--line) !important; border-radius:8px; background:transparent !important; color:var(--txt) !important; box-shadow:none !important; }
+        .rp-btn.primary { background:#26488a !important; border-color:#26488a !important; color:#fff !important; }
+        .rp-btn:hover { opacity:.88; }
         @media print { .cl-bar, button, input, select { display:none !important; } .cl-main { padding:0 !important; } }
     </style>
 </head>
@@ -1591,403 +1598,321 @@
         }
 
 
+        // ===== Unified report engine =====
+        // One authoritative pipeline: company -> report type -> filters -> reportVehicles -> ALL statistics/output.
+        const RPT_TYPES = [
+            { k: 'EXEC', label: 'Executive Report', title: 'Executive Report', full: true },
+            { k: 'ALL', label: 'Full Fleet', title: 'Full Fleet Report', full: true },
+            { k: 'Signal', label: 'Signal / Online', title: 'Signal Vehicles Report', test: v => v.status === 'Signal', desc: 'Status = Signal' },
+            { k: 'Dead', label: 'Dead', title: 'Dead Vehicles Report', test: v => v.status === 'Dead', desc: 'Status = Dead' },
+            { k: 'Failing', label: 'Failing', title: 'Failing Vehicles Report', test: v => v.status === 'Failing', desc: 'Status = Failing' },
+            { k: 'Deactivated', label: 'Deactivated', title: 'Deactivated Vehicles Report', test: v => v.status === 'Deactivated', desc: 'Status = Deactivated' },
+            { k: 'Not Renewed', label: 'Not Renewed', title: 'Not Renewed Vehicles Report', test: v => v.status === 'Not Renewed', desc: 'Status = Not Renewed' },
+            { k: 'Not Activated', label: 'Not Activated', title: 'Not Activated Vehicles Report', test: v => v.status === 'Not Activated', desc: 'Status = Not Activated' },
+            { k: 'Expired', label: 'Expired', title: 'Expired Vehicles Report', test: v => v.status === 'Expired', desc: 'Status = Expired' },
+            { k: 'Removed', label: 'Removed', title: 'Removed Vehicles Report', test: v => v.status === 'Removed', desc: 'Status = Removed' },
+            { k: 'WRONG', label: 'Wrong Installation', title: 'Wrong Installation Report', test: v => !!v.wrongInstall, desc: 'Installation check = Wrong' },
+            { k: 'INSTALL', label: 'Installation Report', title: 'Installation Report', test: v => !!v.wrongInstall || v.installed === 'No' || v.installationStatus !== 'Installed', desc: 'Wrong installation, or not installed' },
+            { k: 'CUSTOM', label: 'Custom', title: 'Custom Report' }
+        ];
+        const RPT_PRESETS = [['EXEC', 'Executive Report'], ['Dead', 'Dead Vehicles'], ['Signal', 'Signal Vehicles'], ['Failing', 'Failing Vehicles'], ['INSTALL', 'Installation Report'], ['ALL', 'Full Fleet'], ['CUSTOM', 'Custom Report']];
+        const rptType = k => RPT_TYPES.find(t => t.k === k) || RPT_TYPES[1];
+
+        // Muted semantic status colours (only four families).
+        const RPT_GREEN = [84, 128, 96], RPT_AMBER = [168, 128, 52], RPT_RED = [166, 74, 68], RPT_GRAY = [126, 126, 122];
+        const RPT_STATUS_COL = { 'Signal': RPT_GREEN, 'Failing': RPT_AMBER, 'Dead': RPT_RED, 'Expired': RPT_RED, 'Deactivated': RPT_GRAY, 'Not Renewed': RPT_GRAY, 'Not Activated': RPT_GRAY, 'Removed': RPT_GRAY };
+        const RPT_INK = [34, 34, 36], RPT_MUT = [112, 112, 108], RPT_LINE = [222, 222, 218], RPT_TRACK = [236, 236, 232], RPT_ACC = [38, 72, 138];
+        const RPT_ICON = 'data:image/png;base64,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';
+
+        let RPT = { comp: null, type: 'EXEC', status: 'ALL', wrong: 'ALL', installed: 'ALL', instStatus: 'ALL', summary: true, register: true, plateOnly: false };
+        function rptCfg() {
+            if (RPT.comp === null) RPT.comp = window.AppState.selectedCompanyId || 'ALL';
+            return { compId: RPT.comp, type: RPT.type, summary: RPT.summary, register: RPT.register, plateOnly: RPT.plateOnly,
+                     filters: { status: RPT.status, wrong: RPT.wrong, installed: RPT.installed, instStatus: RPT.instStatus } };
+        }
+
+        // The single authoritative filtered vehicle list.
+        function getFilteredReportVehicles(cfg) {
+            let list = carsOf(cfg.compId);
+            const t = rptType(cfg.type);
+            if (t.test) list = list.filter(t.test);
+            if (cfg.type === 'CUSTOM') {
+                const f = cfg.filters || {};
+                if (f.status && f.status !== 'ALL') list = list.filter(v => v.status === f.status);
+                if (f.wrong === 'wrong') list = list.filter(v => v.wrongInstall);
+                if (f.wrong === 'correct') list = list.filter(v => !v.wrongInstall);
+                if (f.installed && f.installed !== 'ALL') list = list.filter(v => v.installed === f.installed);
+                if (f.instStatus && f.instStatus !== 'ALL') list = list.filter(v => v.installationStatus === f.instStatus);
+            }
+            return list.slice().sort((a, b) => getCompanyName(a.companyId).localeCompare(getCompanyName(b.companyId)) || String(a.plateNumber).localeCompare(String(b.plateNumber)));
+        }
+
+        // Every number comes from the vehicle array passed in - never from company-wide manual stats.
+        function computeReportStats(vehicles) {
+            const total = vehicles.length, by = {}, extra = {}, inst = {};
+            STAT_KEYS.forEach(k => by[k] = 0);
+            vehicles.forEach(v => {
+                if (by[v.status] !== undefined) by[v.status]++; else { const s = v.status || 'Unknown'; extra[s] = (extra[s] || 0) + 1; }
+                const g = v.installationStatus || 'Unknown'; inst[g] = (inst[g] || 0) + 1;
+            });
+            const wrong = vehicles.filter(v => v.wrongInstall).length;
+            const statusRows = STAT_KEYS.map(k => [k, by[k]]).concat(Object.keys(extra).map(k => [k, extra[k]]));
+            return { total, by, statusRows, wrong, correct: total - wrong,
+                     instYes: vehicles.filter(v => v.installed === 'Yes').length, instNo: vehicles.filter(v => v.installed === 'No').length,
+                     instGroups: Object.keys(inst).map(k => [k, inst[k]]),
+                     pct: n => total > 0 ? (n / total * 100).toFixed(1) + '%' : '0.0%' };
+        }
+
+        function rptFilterText(cfg) {
+            const t = rptType(cfg.type);
+            if (t.full) return 'None - all vehicles of the selected company';
+            if (cfg.type !== 'CUSTOM') return t.desc;
+            const f = cfg.filters || {}, parts = [];
+            if (f.status !== 'ALL') parts.push('Status = ' + f.status);
+            if (f.wrong === 'wrong') parts.push('Installation check = Wrong');
+            if (f.wrong === 'correct') parts.push('Installation check = Correct');
+            if (f.installed !== 'ALL') parts.push('Installed = ' + f.installed);
+            if (f.instStatus !== 'ALL') parts.push('Installation status = ' + f.instStatus);
+            return parts.length ? parts.join('; ') : 'None selected - all vehicles of the selected company';
+        }
+
+        function buildReportData(cfg) {
+            const t = rptType(cfg.type);
+            const vehicles = getFilteredReportVehicles(cfg);      // <- authoritative list
+            const stats = computeReportStats(vehicles);           // <- everything derives from it
+            return { vehicles, stats, title: t.title, isFull: !!t.full, countLabel: t.full ? 'TOTAL FLEET' : 'VEHICLES IN THIS REPORT',
+                     compName: getCompanyName(cfg.compId), filterText: rptFilterText(cfg), generated: new Date() };
+        }
+        const rptDate = d => d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) + '  ' + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        const rptIssues = v => { const r = []; if (v.status !== 'Signal') r.push('Status: ' + v.status); if (v.wrongInstall) r.push('Wrong installation'); if (v.installed === 'No') r.push('Not installed'); return r; };
+
+        // ===== Reports view =====
         function renderReportsView() {
-            const selectedName = getCompanyName(window.AppState.selectedCompanyId);
+            const cfg = rptCfg(), d = buildReportData(cfg), s = d.stats;
+            const sel = (a, b) => a === b ? 'selected' : '';
+            const statusCounts = STAT_KEYS.filter(k => s.by[k] > 0).map(k => k + ' ' + s.by[k]).join('  ·  ') || 'No vehicles';
+            const opt = (v, cur, l) => `<option value="${v}" ${sel(v, cur)}>${l}</option>`;
+            const instVals = Array.from(new Set(['Installed', 'Not Installed'].concat(window.AppState.vehicles.map(v => v.installationStatus).filter(Boolean))));
             return `
-            <div class="space-y-6">
-                <section class="cl-report-hero rounded-xl p-7 md:p-9">
-                    <div class="relative z-10 grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-8 items-end">
-                        <div>
-                            <div class="cl-report-logo-panel mb-7"><img class="cl-logo-img" src="${CLICKLIFE_LOGO_DATA}" alt="Clicklife logo"></div>
-                            <div class="cl-report-kicker">SecurePath / fleet intelligence</div>
-                            <h2 class="text-3xl md:text-5xl font-extrabold mt-2">Reports made decision-ready.</h2>
-                            <p class="mt-4 text-sm md:text-base text-blue-100/80 leading-relaxed">Build a clear operational picture of your GPS fleet with structured exports and executive-grade PDF reports.</p>
-                        </div>
-                        <div class="lg:text-right"><div class="text-[10px] uppercase tracking-[.18em] font-extrabold text-blue-200/70 mb-2">Current report scope</div><div class="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-sm font-bold text-white"><span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_0_4px_rgba(52,211,153,.15)]"></span>${selectedName}</div></div>
+            <div class="rp-wrap">
+                <div class="rp-head"><img class="cl-logo-img rp-logo" src="${CLICKLIFE_LOGO_DATA}" alt="Clicklife"><h2>Reports</h2></div>
+                <div class="rp-tiles">${RPT_PRESETS.map(p => `<button type="button" class="rp-tile ${RPT.type === p[0] ? 'on' : ''}" onclick="rptSet('type','${p[0]}')">${p[1]}</button>`).join('')}</div>
+                <div class="rp-panel">
+                    <div class="rp-grid">
+                        <label><span>Company</span><select onchange="rptSet('comp',this.value)">${opt('ALL', cfg.compId, 'All Companies')}${window.AppState.companies.map(c => opt(c.id, cfg.compId, c.name)).join('')}</select></label>
+                        <label><span>Report type</span><select onchange="rptSet('type',this.value)">${RPT_TYPES.map(t => opt(t.k, cfg.type, t.label)).join('')}</select></label>
                     </div>
-                </section>
-
-                <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                    <div class="cl-report-card excel bg-white dark:bg-slate-800 p-6 md:p-7 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col justify-between">
-                        <div>
-                            <div class="flex items-start justify-between gap-4"><div><div class="cl-report-kicker !text-emerald-600 dark:!text-emerald-400">Operational data</div><h3 class="text-2xl font-extrabold mt-1">Excel fleet export</h3></div><span class="cl-format-preview">XLSX</span></div>
-                            <p class="text-sm text-slate-500 dark:text-slate-400 mt-3 leading-relaxed max-w-lg">Download a structured workbook for fleet operations, installation review and management follow-up.</p>
-                            <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div><label class="block text-xs font-bold text-slate-500 mb-2">Company dataset</label><select id="excelCompany" class="w-full py-3 px-3 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg"><option value="ALL">All Companies</option>${window.AppState.companies.map(c => `<option value="${c.id}">${c.name}</option>`).join('')}</select></div>
-                                <div><label class="block text-xs font-bold text-slate-500 mb-2">Export content</label><select id="excelDataset" class="w-full py-3 px-3 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg"><option value="carNumbers">Car Numbers</option><option value="deadCars">Dead Cars</option><option value="onlineCars">Online Cars</option><option value="wrongCars">Wrong Installation Cars</option></select></div>
-                            </div>
-                        </div>
-                        <button onclick="triggerExcelExport()" class="mt-8 py-3.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-extrabold transition flex items-center justify-center gap-2"><span>Export Excel workbook</span><span aria-hidden="true">→</span></button>
+                    ${cfg.type === 'CUSTOM' ? `
+                    <div class="rp-grid rp-filters">
+                        <label><span>Status</span><select onchange="rptSet('status',this.value)">${opt('ALL', RPT.status, 'All statuses')}${STAT_KEYS.map(k => opt(k, RPT.status, k)).join('')}</select></label>
+                        <label><span>Installation check</span><select onchange="rptSet('wrong',this.value)">${opt('ALL', RPT.wrong, 'All')}${opt('wrong', RPT.wrong, 'Wrong installation')}${opt('correct', RPT.wrong, 'Correct installation')}</select></label>
+                        <label><span>Installed</span><select onchange="rptSet('installed',this.value)">${opt('ALL', RPT.installed, 'All')}${opt('Yes', RPT.installed, 'Yes')}${opt('No', RPT.installed, 'No')}</select></label>
+                        <label><span>Installation status</span><select onchange="rptSet('instStatus',this.value)">${opt('ALL', RPT.instStatus, 'All')}${instVals.map(v => opt(v, RPT.instStatus, v)).join('')}</select></label>
+                    </div>` : ''}
+                    <div class="rp-opts">
+                        <label><input type="checkbox" ${RPT.summary ? 'checked' : ''} onchange="rptSet('summary',this.checked)"> Include summary</label>
+                        <label><input type="checkbox" ${RPT.register ? 'checked' : ''} onchange="rptSet('register',this.checked)"> Include vehicle register</label>
+                        <label><input type="checkbox" ${RPT.plateOnly ? 'checked' : ''} onchange="rptSet('plateOnly',this.checked)"> Excel: plate numbers only</label>
                     </div>
-
-                    <div class="cl-report-card pdf bg-white dark:bg-slate-800 p-6 md:p-7 rounded-xl border border-slate-200 dark:border-slate-700 flex flex-col justify-between">
-                        <div>
-                            <div class="flex items-start justify-between gap-4"><div><div class="cl-report-kicker !text-rose-600 dark:!text-rose-400">Executive document</div><h3 class="text-2xl font-extrabold mt-1">Professional PDF report</h3></div><span class="cl-format-preview">A4 PDF</span></div>
-                            <p class="text-sm text-slate-500 dark:text-slate-400 mt-3 leading-relaxed max-w-lg">Choose the company and the report focus (Signal, Dead, wrong installations or the full fleet). The document is organised as: cover, executive summary, status analysis, vehicle register.</p>
-                            <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div><label class="block text-xs font-bold text-slate-500 mb-2">Company</label><select id="pdfCompany" class="w-full py-3 px-3 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg"><option value="ALL" ${window.AppState.selectedCompanyId === 'ALL' ? 'selected' : ''}>All Companies</option>${window.AppState.companies.map(c => `<option value="${c.id}" ${window.AppState.selectedCompanyId === c.id ? 'selected' : ''}>${c.name}</option>`).join('')}</select></div>
-                                <div><label class="block text-xs font-bold text-slate-500 mb-2">Report focus</label><select id="pdfScope" class="w-full py-3 px-3 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg"><option value="ALL">Full fleet (all statuses)</option><optgroup label="Health"><option value="Signal">Signal cars (online)</option><option value="Dead">Dead cars</option><option value="Failing">Failing cars</option></optgroup><optgroup label="Lifecycle"><option value="Deactivated">Deactivated</option><option value="Not Renewed">Not Renewed</option><option value="Not Activated">Not Activated</option><option value="Expired">Expired</option><option value="Removed">Removed</option></optgroup><optgroup label="Installation"><option value="WRONG">Wrong installations</option></optgroup></select></div>
-                            </div>
-                            <div class="mt-4 rounded-xl bg-slate-50 dark:bg-slate-900/60 p-4 border border-slate-200 dark:border-slate-700 space-y-3">
-                                <div class="text-[10px] uppercase tracking-[.14em] font-extrabold text-slate-400">Include in this document</div>
-                                <label class="flex items-center gap-3 text-xs font-bold"><input type="checkbox" id="pdfIncludeStats" checked class="rounded text-brand-600 focus:ring-brand-500"><span>Executive summary (Signal vs Dead) & status breakdown</span></label>
-                                <label class="flex items-center gap-3 text-xs font-bold"><input type="checkbox" id="pdfIncludeVehicles" checked class="rounded text-brand-600 focus:ring-brand-500"><span>Vehicle register for the selected focus</span></label>
-                            </div>
-                        </div>
-                        <div class="mt-8 flex items-center gap-2"><button onclick="triggerQuickPDF()" class="flex-1 py-3.5 px-3 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-extrabold transition text-center">Quick summary</button><button onclick="triggerCustomPDF()" class="flex-1 py-3.5 px-3 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-xs font-extrabold transition text-center">Export professional PDF</button></div>
+                    <div class="rp-preview">
+                        <div><div class="rp-k">${d.countLabel}</div><div class="rp-n">${s.total.toLocaleString('en-US')}</div></div>
+                        <div class="rp-sub">${statusCounts}<br>Wrong installation ${s.wrong}  ·  Correct ${s.correct}</div>
+                    </div>
+                    <div class="rp-actions">
+                        <button type="button" class="rp-btn primary" onclick="triggerReportPDF()">Download PDF</button>
+                        <button type="button" class="rp-btn" onclick="triggerExcelExport()">Download Excel</button>
                     </div>
                 </div>
             </div>`;
         }
+        window.rptSet = function(k, v) { rptCfg(); RPT[k] = v; renderApp(); };
 
+        // ===== Excel =====
         window.triggerExcelExport = function() {
-            const compId = document.getElementById('excelCompany').value;
-            const datasetKey = document.getElementById('excelDataset').value;
-
-            let list = window.AppState.vehicles.slice();
-            if (compId !== 'ALL') list = list.filter(v => v.companyId === compId);
-            if (datasetKey === 'deadCars') list = list.filter(v => v.status === 'Dead');
-            if (datasetKey === 'onlineCars') list = list.filter(v => v.status === 'Signal');
-            if (datasetKey === 'wrongCars') list = list.filter(v => v.wrongInstall);
-
-            let dataToExport;
-            if (datasetKey === 'carNumbers') {
-                dataToExport = list.map(v => ({
-                    'Company': getCompanyName(v.companyId),
-                    'Plate Number': v.plateNumber
-                }));
-            } else {
-                dataToExport = list.map(v => ({
-                    'Company': getCompanyName(v.companyId),
-                    'Plate Number': v.plateNumber,
-                    'VIN / Chassis': v.vin,
-                    'Device Number': v.deviceNumber,
-                    'SIM Card Number': v.simCardNumber,
-                    'Status': v.status,
-                    'Installed': v.installed,
-                    'Installation Status': v.installationStatus,
-                    'Installation Check': v.wrongInstall ? 'Wrong installation' : 'Correct',
-                    'Notes': v.notes || ''
-                }));
+            const cfg = rptCfg();
+            const d = buildReportData(cfg), s = d.stats, v = d.vehicles;
+            if (!v.length) { alert('No records available to export for selected options.'); return; }
+            if (!cfg.summary && !cfg.register) { showNotification('Select at least one section to include.', 'error'); return; }
+            const wb = XLSX.utils.book_new();
+            const sheet = (aoa, cols) => { const ws = XLSX.utils.aoa_to_sheet(aoa); ws['!cols'] = cols.map(w => ({ wch: w })); return ws; };
+            if (cfg.summary) {
+                const rows = [['CLICKLIFE SECUREPATH'], ['Fleet Operations Report'], [], ['Company', d.compName], ['Report type', d.title], ['Filters applied', d.filterText], ['Generated', rptDate(d.generated)], [],
+                    [d.countLabel.charAt(0) + d.countLabel.slice(1).toLowerCase(), s.total], [], ['Status', 'Vehicles', '% of report']];
+                s.statusRows.filter(r => r[1] > 0 || STAT_KEYS.indexOf(r[0]) > -1).forEach(r => rows.push([r[0], r[1], s.total ? r[1] / s.total : 0]));
+                rows.push(['Total in report', s.total, s.total ? 1 : 0], [], ['Installation', 'Vehicles', '% of report'],
+                    ['Correct installation', s.correct, s.total ? s.correct / s.total : 0], ['Wrong installation', s.wrong, s.total ? s.wrong / s.total : 0],
+                    ['Installed: Yes', s.instYes, s.total ? s.instYes / s.total : 0], ['Installed: No', s.instNo, s.total ? s.instNo / s.total : 0]);
+                s.instGroups.forEach(g => rows.push(['Installation status: ' + g[0], g[1], s.total ? g[1] / s.total : 0]));
+                const ws = sheet(rows, [34, 40, 14]);
+                Object.keys(ws).forEach(a => { if (a[0] === 'C' && typeof ws[a].v === 'number') ws[a].z = '0.0%'; });
+                XLSX.utils.book_append_sheet(wb, ws, 'Summary');
             }
-
-            if (dataToExport.length === 0) {
-                alert("No records available to export for selected options.");
-                return;
+            if (cfg.register) {
+                const rows = cfg.plateOnly ? [['Company', 'Plate Number']].concat(v.map(x => [getCompanyName(x.companyId), x.plateNumber]))
+                    : [['No.', 'Company', 'Plate Number', 'VIN / Chassis', 'Device Number', 'SIM Card', 'Status', 'Installed', 'Installation Status', 'Installation Check', 'Notes']]
+                        .concat(v.map((x, i) => [i + 1, getCompanyName(x.companyId), x.plateNumber, x.vin || '', x.deviceNumber || '', x.simCardNumber || '', x.status, x.installed || '', x.installationStatus || '', x.wrongInstall ? 'Wrong installation' : 'Correct', x.notes || '']));
+                const ws = sheet(rows, cfg.plateOnly ? [28, 18] : [6, 26, 16, 24, 18, 22, 14, 10, 20, 20, 36]);
+                ws['!autofilter'] = { ref: ws['!ref'] };
+                XLSX.utils.book_append_sheet(wb, ws, 'Vehicles');
+                const issues = v.filter(x => rptIssues(x).length);
+                if (issues.length) {
+                    const irows = [['Company', 'Plate Number', 'VIN / Chassis', 'Device Number', 'SIM Card', 'Status', 'Issue']]
+                        .concat(issues.map(x => [getCompanyName(x.companyId), x.plateNumber, x.vin || '', x.deviceNumber || '', x.simCardNumber || '', x.status, rptIssues(x).join('; ')]));
+                    const iw = sheet(irows, [26, 16, 24, 18, 22, 14, 44]); iw['!autofilter'] = { ref: iw['!ref'] };
+                    XLSX.utils.book_append_sheet(wb, iw, 'Issues');
+                }
             }
-
-            const fileName = `ClicklifeSecurePath_${datasetKey}_${Date.now()}.xlsx`;
-            const worksheet = XLSX.utils.json_to_sheet(dataToExport);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, "FleetReport");
-            XLSX.writeFile(workbook, fileName);
+            const fileName = `Clicklife_${cfg.type.replace(/[^a-z0-9]+/gi, '_')}_${d.compName.replace(/[^a-z0-9]+/gi, '_')}_${d.generated.toISOString().slice(0, 10)}.xlsx`;
+            XLSX.writeFile(wb, fileName);
             showNotification(`Excel exported: ${fileName}`, 'success');
         };
 
-        // ===== PDF report engine =====
-        const PDF_COL = {'Signal':[16,185,129],'Deactivated':[100,116,139],'Failing':[245,158,11],'Dead':[239,68,68],'Not Renewed':[168,85,247],'Not Activated':[59,130,246],'Expired':[220,38,38],'Removed':[219,39,119]};
-        const PDF_NAVY = [15,23,42], PDF_BLUE = [37,99,235], PDF_INK = [30,41,59], PDF_MUTED = [100,116,139], PDF_LINE = [226,232,240], PDF_SOFT = [248,250,252];
-        let _pdfLogoCache = CLICKLIFE_LOGO_DATA;
-        function pdfLogoPng() { return _pdfLogoCache; }
-        function pdfLogo(doc, logo, x, y, w, h) {
-            if (logo) { doc.addImage(logo, 'PNG', x, y, w, h); return; }
-            doc.setFillColor(...PDF_BLUE); doc.roundedRect(x, y, h, h, h * 0.28, h * 0.28, 'F');
-        }
-
-        function pdfSection(doc, text, y) {
-            doc.setFillColor(...PDF_NAVY); doc.roundedRect(14, y - 5.4, 2.2, 7.2, 1.1, 1.1, 'F');
-            doc.setFont('helvetica', 'bold'); doc.setFontSize(13.2); doc.setTextColor(...PDF_NAVY);
-            doc.text(text, 20, y);
-            doc.setDrawColor(...PDF_LINE); doc.setLineWidth(0.35); doc.line(20, y + 3.2, doc.internal.pageSize.getWidth() - 14, y + 3.2);
-        }
-
-        function pdfDonut(doc, cx, cy, r, stats, total) {
-            const palette = {Signal:[14,165,163], Dead:[234,88,12], Expired:[185,28,28], Failing:[217,119,6], Deactivated:[100,116,139], 'Not Activated':[37,99,235], 'Not Renewed':[124,58,237], Removed:[190,24,93]};
-            doc.setLineWidth(8); doc.setDrawColor(226,232,240); doc.circle(cx, cy, r, 'S');
-            let angle = -Math.PI / 2;
-            STAT_KEYS.forEach(key => {
-                const value = stats[key] || 0;
-                if (!value || !total) return;
-                const next = angle + (value / total) * Math.PI * 2;
-                const steps = Math.max(4, Math.ceil((next - angle) * 18));
-                const pts = [];
-                for (let i=0;i<=steps;i++) { const a=angle+(next-angle)*(i/steps); pts.push([cx+r*Math.cos(a), cy+r*Math.sin(a)]); }
-                doc.setDrawColor(...(palette[key] || PDF_BLUE)); doc.setLineWidth(8);
-                for (let i=1;i<pts.length;i++) doc.line(pts[i-1][0], pts[i-1][1], pts[i][0], pts[i][1]);
-                angle = next;
-            });
-            doc.setFillColor(255,255,255); doc.circle(cx, cy, r-5, 'F');
-            doc.setFont('helvetica','bold'); doc.setFontSize(19); doc.setTextColor(...PDF_NAVY); doc.text(String(total), cx, cy+2, {align:'center'});
-            doc.setFont('helvetica','normal'); doc.setFontSize(7); doc.setTextColor(...PDF_MUTED); doc.text('TOTAL VEHICLES', cx, cy+7, {align:'center'});
-        }
-
-        const PDF_SCOPES = { ALL: 'Full Fleet Report', Signal: 'Signal Vehicles Report', Dead: 'Dead Vehicles Report', Failing: 'Failing Vehicles Report', Deactivated: 'Deactivated Vehicles Report', 'Not Renewed': 'Not Renewed Vehicles Report', 'Not Activated': 'Not Activated Vehicles Report', Expired: 'Expired Vehicles Report', Removed: 'Removed Vehicles Report', WRONG: 'Wrong Installations Report' };
-        const PDF_GREEN = [14, 165, 163], PDF_RED = [185, 28, 28];
-
-        function pdfScopeCars(cars, scope) {
-            if (!scope || scope === 'ALL') return cars;
-            if (scope === 'WRONG') return cars.filter(v => v.wrongInstall);
-            return cars.filter(v => v.status === scope);
-        }
-
-        function pdfCard(doc, x, y, w, h, label, value, sub, col) {
-            doc.setFillColor(255, 255, 255); doc.setDrawColor(...PDF_LINE); doc.setLineWidth(0.35);
-            doc.roundedRect(x, y, w, h, 3, 3, 'FD');
-            doc.setFillColor(...col); doc.roundedRect(x, y, 2.6, h, 1.3, 1.3, 'F');
-            doc.setFont('helvetica', 'bold'); doc.setFontSize(7.2); doc.setTextColor(...PDF_MUTED);
-            doc.text(label.toUpperCase(), x + 8, y + 8);
-            doc.setFontSize(19); doc.setTextColor(...PDF_NAVY); doc.text(String(value), x + 8, y + 18.5);
-            doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(...PDF_MUTED); doc.text(sub, x + 8, y + h - 3.2);
-        }
-
-        function pdfVsCard(doc, x, y, w, h, label, note, value, pct, col) {
-            doc.setFillColor(255, 255, 255); doc.setDrawColor(...PDF_LINE); doc.setLineWidth(0.35);
-            doc.roundedRect(x, y, w, h, 3.5, 3.5, 'FD');
-            doc.setFillColor(...col); doc.roundedRect(x, y, w, 3, 1.5, 1.5, 'F');
-            doc.setFont('helvetica', 'bold'); doc.setFontSize(8.2); doc.setTextColor(...col);
-            doc.text(label.toUpperCase(), x + 9, y + 13);
-            doc.setFontSize(28); doc.setTextColor(...PDF_NAVY); doc.text(String(value), x + 9, y + 27);
-            doc.setFontSize(16); doc.setTextColor(...col); doc.text(pct, x + w - 9, y + 27, { align: 'right' });
-            doc.setFont('helvetica', 'normal'); doc.setFontSize(7.6); doc.setTextColor(...PDF_MUTED); doc.text(note, x + 9, y + h - 4);
-        }
-
-        async function buildReportPDF(opts) {
+        // ===== PDF =====
+        async function buildReportPDF(cfg) {
             const { jsPDF } = window.jspdf;
+            const d = buildReportData(cfg), s = d.stats, vs = d.vehicles;
             const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-            const W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight();
-            const compId = opts.compId || window.AppState.selectedCompanyId;
-            const scope = opts.scope || 'ALL';
-            const scopeTitle = PDF_SCOPES[scope] || PDF_SCOPES.ALL;
-            opts.title = scopeTitle;
-            const compName = getCompanyName(compId);
-            const stats = getCompanyStats(compId);
-            const total = stats.Total || 0;
-            const logo = await pdfLogoPng();
-            const now = new Date();
-            const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) + '  ' + now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-            const cars = carsOf(compId);
-            const pct = (n) => total > 0 ? (n / total * 100).toFixed(1) + '%' : '0.0%';
+            const PW = 210, M = 18, CW = PW - 2 * M;
+            const dateStr = rptDate(d.generated), totalTxt = s.total.toLocaleString('en-US');
+            const txt = (t, x, y, size, col, bold, o) => { doc.setFont('helvetica', bold ? 'bold' : 'normal'); doc.setFontSize(size); doc.setTextColor(...col); doc.text(String(t), x, y, o); };
+            const rule = (x1, y, x2, col, w) => { doc.setDrawColor(...(col || RPT_LINE)); doc.setLineWidth(w || 0.25); doc.line(x1, y, x2, y); };
+            const heading = (t, y) => { txt(t, M, y, 11, RPT_INK, true); rule(M, y + 2.5, PW - M, RPT_INK, 0.3); };
+            const tblBase = (extra) => Object.assign({ theme: 'plain', margin: { left: M, right: M, top: 24, bottom: 18 },
+                styles: { font: 'helvetica', fillColor: [255, 255, 255], fontSize: 8.5, cellPadding: { top: 2.6, bottom: 2.6, left: 2, right: 2 }, textColor: RPT_INK, lineColor: RPT_LINE, lineWidth: { bottom: 0.2 } },
+                headStyles: { fillColor: [255, 255, 255], textColor: RPT_MUT, fontStyle: 'bold', fontSize: 7, lineColor: RPT_INK, lineWidth: { bottom: 0.4 } } }, extra);
 
-            // ================= 1. COVER =================
-            doc.setFillColor(...PDF_NAVY); doc.rect(0, 0, W, 58, 'F');
-            doc.setFillColor(...PDF_BLUE); doc.rect(0, 58, W, 2.2, 'F');
-            doc.setFillColor(...PDF_GREEN); doc.rect(14, 12, 2.2, 30, 'F');
-            pdfLogo(doc, logo, 21, 13, 62, 23.6);
-            doc.setFont('helvetica', 'bold'); doc.setFontSize(19); doc.setTextColor(255, 255, 255);
-            doc.text(scopeTitle, W - 14, 20, { align: 'right' });
-            doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(191, 219, 254);
-            doc.text('GPS fleet intelligence / operations report', W - 14, 28, { align: 'right' });
-            doc.setFontSize(7.8); doc.setTextColor(148, 163, 184);
-            doc.text('Generated ' + dateStr, W - 14, 36, { align: 'right' });
-            doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(125, 211, 252);
-            doc.text('CLICKLIFE SECUREPATH', 21, 49);
-            doc.setFontSize(24); doc.setTextColor(...PDF_NAVY);
-            doc.text('Official Fleet Operations Report', 21, 82);
-            doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(...PDF_MUTED);
-            doc.text('Prepared for ' + compName, 21, 91);
-            doc.setDrawColor(...PDF_LINE); doc.setLineWidth(0.4); doc.line(21, 101, W - 21, 101);
-            doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(...PDF_MUTED);
-            doc.text('REPORT DATE', 21, 112); doc.text('REPORT FOCUS', 84, 112); doc.text('SYSTEM', 147, 112);
-            doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(...PDF_INK);
-            doc.text(dateStr, 21, 121); doc.text(scopeTitle.replace(' Report', ''), 84, 121); doc.text('Clicklife SecurePath', 147, 121);
-            // contents box
-            doc.setFillColor(239, 246, 255); doc.roundedRect(21, 137, W - 42, 42, 3, 3, 'F');
-            doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(...PDF_BLUE);
-            doc.text('CONTENTS', 28, 147);
-            doc.setFont('helvetica', 'normal'); doc.setFontSize(8.8); doc.setTextColor(...PDF_INK);
-            const toc = [];
-            if (opts.stats) { toc.push('Executive summary  -  Signal vs Dead'); toc.push('Status analysis and breakdown'); }
-            if (opts.vehicles) toc.push('Vehicle register  -  ' + scopeTitle.replace(' Report', ''));
-            toc.forEach((t, i) => doc.text((i + 1) + '.   ' + t, 28, 156 + i * 7));
-            doc.addPage();
+            // ---- 1. Cover ----
+            doc.addImage(RPT_ICON, 'PNG', M, 20, 12, 12);
+            txt('CLICKLIFE', M + 16, 25.5, 10, RPT_INK, true, { charSpace: 1.6 });
+            txt('SECUREPATH', M + 16, 30.5, 7.5, RPT_MUT, false, { charSpace: 1.4 });
+            txt('FLEET OPERATIONS REPORT', M, 112, 9, RPT_ACC, true, { charSpace: 2 });
+            doc.setFont('helvetica','bold'); doc.setFontSize(26); const nameLines = doc.splitTextToSize(d.compName, CW);
+            txt(nameLines, M, 126, 26, RPT_INK, true);
+            let cy = 126 + nameLines.length * 10.5;
+            txt(d.title, M, cy, 13, RPT_MUT, false);
+            doc.setDrawColor(...RPT_ACC); doc.setLineWidth(0.9); doc.line(M, cy + 8, M + 22, cy + 8);
+            rule(M, 214, PW - M, RPT_LINE);
+            txt('REPORT DATE', M, 224, 7, RPT_MUT, true, { charSpace: 0.8 });
+            txt(dateStr, M, 231, 10.5, RPT_INK, false);
+            txt(d.countLabel.replace('VEHICLES IN THIS REPORT', 'VEHICLES IN THIS REPORT'), PW / 2, 224, 7, RPT_MUT, true, { charSpace: 0.8 });
+            txt(totalTxt, PW / 2, 234, 22, RPT_INK, true);
 
-            // ================= 2. SCOPE + EXECUTIVE SUMMARY =================
-            pdfSection(doc, 'Report Scope', 32);
-            doc.setFillColor(...PDF_SOFT); doc.setDrawColor(...PDF_LINE); doc.setLineWidth(0.35);
-            doc.roundedRect(14, 39, W - 28, 22, 3.5, 3.5, 'FD');
-            doc.setFillColor(...PDF_BLUE); doc.roundedRect(14, 39, 2.4, 22, 1.2, 1.2, 'F');
-            doc.setFont('helvetica', 'bold'); doc.setFontSize(7.2); doc.setTextColor(...PDF_MUTED);
-            doc.text('PREPARED FOR', 22, 47); doc.text('REPORT FOCUS', W / 2 + 6, 47);
-            doc.setFontSize(13); doc.setTextColor(...PDF_NAVY);
-            doc.text(compName, 22, 56); doc.text(scopeTitle.replace(' Report', ''), W / 2 + 6, 56);
-
-            let y = 76;
-            if (opts.stats) {
-                const sig = stats.Signal || 0, dead = stats.Dead || 0;
-                const other = Math.max(0, total - sig - dead);
-                const wrong = installSplit(cars).w;
-
-                // --- Signal vs Dead ---
-                pdfSection(doc, 'Executive Summary  -  Signal vs Dead', y);
-                const cw = (W - 28 - 8) / 2;
-                pdfVsCard(doc, 14, y + 8, cw, 38, 'Signal  |  Online', 'Devices reporting normally', sig, pct(sig), PDF_GREEN);
-                pdfVsCard(doc, 14 + cw + 8, y + 8, cw, 38, 'Dead  |  Offline', 'Devices with no communication', dead, pct(dead), PDF_RED);
-                doc.setFillColor(...PDF_NAVY); doc.circle(W / 2, y + 27, 4.6, 'F');
-                doc.setFont('helvetica', 'bold'); doc.setFontSize(7.4); doc.setTextColor(255, 255, 255); doc.text('VS', W / 2, y + 29.2, { align: 'center' });
-
-                // --- fleet health bar ---
-                const by = y + 58, bw = W - 28, denom = Math.max(total, sig + dead) || 1;
-                doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(...PDF_MUTED); doc.text('FLEET HEALTH', 14, by - 3);
-                doc.setFillColor(226, 232, 240); doc.roundedRect(14, by, bw, 7, 3.5, 3.5, 'F');
-                let bx = 14;
-                [[sig, PDF_GREEN], [other, [148, 163, 184]], [dead, PDF_RED]].forEach(seg => {
-                    const w = bw * seg[0] / denom;
-                    if (w > 0.4) { doc.setFillColor(...seg[1]); doc.rect(bx, by, w, 7, 'F'); bx += w; }
-                });
-                doc.setFillColor(255, 255, 255); doc.setDrawColor(255, 255, 255); doc.setLineWidth(1.6);
-                doc.roundedRect(13, by - 1, bw + 2, 9, 4.5, 4.5, 'S');
-                const lg = [['Signal', sig, PDF_GREEN], ['Other statuses', other, [148, 163, 184]], ['Dead', dead, PDF_RED]];
-                lg.forEach((l, i) => {
-                    const lx = 14 + i * 62;
-                    doc.setFillColor(...l[2]); doc.circle(lx + 1.6, by + 14.2, 1.6, 'F');
-                    doc.setFont('helvetica', 'bold'); doc.setFontSize(8); doc.setTextColor(...PDF_INK); doc.text(l[0], lx + 5, by + 15.2);
-                    doc.setFont('helvetica', 'normal'); doc.setTextColor(...PDF_MUTED); doc.text(l[1] + '  (' + pct(l[1]) + ')', lx + 5 + doc.getTextWidth(l[0]) + 2.5, by + 15.2);
-                });
-
-                // --- key indicators ---
-                const ky = by + 30;
-                pdfSection(doc, 'Key Indicators', ky);
-                const k4 = (W - 28 - 3 * 4) / 4, kr = ky + 8;
-                const inst = installSplit(cars);
-                [['Total vehicles', total, 'Tracked fleet size', PDF_BLUE],
-                 ['Wrong install', wrong, 'Flagged for review', [217, 119, 6]],
-                 ['Correct install', inst.c, 'Verified records', [5, 150, 105]],
-                 ['Failing', stats.Failing || 0, pct(stats.Failing || 0) + ' of total', [245, 158, 11]]]
-                    .forEach((k, i) => pdfCard(doc, 14 + i * (k4 + 4), kr, k4, 28, k[0], k[1], k[2], k[3]));
-
-                // ================= 3. STATUS ANALYSIS =================
+            if (cfg.summary) {
+                // ---- 2. Executive summary (everything from reportVehicles) ----
                 doc.addPage();
-                pdfSection(doc, 'Fleet Status Overview', 32);
-                pdfDonut(doc, 54, 69, 21, stats, total);
-                doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(...PDF_MUTED);
-                doc.text('Current distribution of vehicles by operational status.', 92, 45);
-                let ly = 57;
-                STAT_KEYS.filter(k => (stats[k] || 0) > 0).forEach(key => {
-                    const swatch = key === 'Signal' ? PDF_GREEN : (key === 'Dead' || key === 'Expired' ? PDF_RED : [37, 99, 235]);
-                    doc.setFillColor(...swatch); doc.roundedRect(92, ly - 3.2, 3.2, 3.2, 1.1, 1.1, 'F');
-                    doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5); doc.setTextColor(...PDF_INK); doc.text(key, 99, ly);
-                    doc.setFont('helvetica', 'normal'); doc.setTextColor(...PDF_MUTED); doc.text(String(stats[key]) + ' vehicles  /  ' + (total ? (stats[key] / total * 100).toFixed(1) : '0.0') + '%', 150, ly);
-                    ly += 9;
+                txt('Executive Summary', M, 34, 18, RPT_INK, true);
+                txt(d.title + '  |  ' + d.compName, M, 41, 9, RPT_MUT, false);
+                const kpis = [[d.countLabel.replace('VEHICLES IN THIS REPORT', 'VEHICLES IN\nTHIS REPORT'), s.total, null], ['ONLINE', s.by.Signal, RPT_GREEN], ['DEAD', s.by.Dead, RPT_RED], ['FAILING', s.by.Failing, RPT_AMBER], ['WRONG\nINSTALLATION', s.wrong, null]];
+                const kw = CW / kpis.length, ky = 60;
+                rule(M, ky - 8, PW - M, RPT_INK, 0.3);
+                kpis.forEach((k, i) => {
+                    const x = M + i * kw + (i ? 4 : 0);
+                    if (i) { doc.setDrawColor(...RPT_LINE); doc.setLineWidth(0.25); doc.line(M + i * kw, ky - 4, M + i * kw, ky + 24); }
+                    if (k[2]) { doc.setFillColor(...k[2]); doc.circle(x + 0.8, ky - 0.4, 0.8, 'F'); }
+                    k[0].split('\n').forEach((ln, j) => txt(ln, x + (k[2] ? 3 : 0), ky + j * 3.2, 6.4, RPT_MUT, true, { charSpace: 0.3 }));
+                    txt(k[1].toLocaleString('en-US'), x, ky + 15, 23, RPT_INK, true);
+                    if (i) txt(s.pct(k[1]) + ' of report', x, ky + 21, 7, RPT_MUT, false);
                 });
+                rule(M, ky + 28, PW - M, RPT_LINE);
+                heading('Report Scope', 106);
+                const scope = [['Company', d.compName], ['Report type', d.title], ['Filters applied', d.filterText], [d.countLabel.charAt(0) + d.countLabel.slice(1).toLowerCase(), totalTxt], ['Generated', dateStr]];
+                doc.autoTable(tblBase({ startY: 111, body: scope, margin: { left: M, right: M, top: 24, bottom: 18 }, columnStyles: { 0: { cellWidth: 44, textColor: RPT_MUT }, 1: { fontStyle: 'bold' } } }));
+                const iy = doc.lastAutoTable.finalY + 12;
+                heading('Installation Summary', iy);
+                doc.autoTable(tblBase({ startY: iy + 5, body: [
+                    ['Correct installation', s.correct.toLocaleString('en-US'), s.pct(s.correct)], ['Wrong installation', s.wrong.toLocaleString('en-US'), s.pct(s.wrong)],
+                    ['Hardware installed', s.instYes.toLocaleString('en-US'), s.pct(s.instYes)], ['Hardware not installed', s.instNo.toLocaleString('en-US'), s.pct(s.instNo)]],
+                    columnStyles: { 0: { cellWidth: 60, textColor: RPT_MUT }, 1: { halign: 'right', fontStyle: 'bold', cellWidth: 30 }, 2: { halign: 'right', textColor: RPT_MUT } } }));
 
-                pdfSection(doc, 'Status Breakdown', 124);
-                const rows = STAT_KEYS.map(k => {
-                    const n = stats[k] || 0, s = installSplit(cars.filter(v => v.status === k));
-                    return [k, n, pct(n), '', s.w, s.c];
-                });
-                doc.autoTable({
-                    startY: 130,
-                    head: [['Status', 'Count', '% of total', 'Distribution', 'Wrong install', 'Correct install']],
-                    body: rows,
-                    theme: 'plain',
-                    margin: { left: 14, right: 14, top: 26, bottom: 18 },
-                    styles: { font: 'helvetica', fontSize: 9.3, cellPadding: { top: 4.2, bottom: 4.2, left: 3.5, right: 3.5 }, textColor: PDF_INK, lineColor: PDF_LINE, lineWidth: { bottom: 0.2 } },
-                    headStyles: { fillColor: PDF_NAVY, textColor: 255, fontStyle: 'bold', fontSize: 8.8, lineWidth: 0 },
-                    alternateRowStyles: { fillColor: PDF_SOFT },
-                    columnStyles: { 0: { cellWidth: 38, fontStyle: 'bold' }, 1: { cellWidth: 20, halign: 'right', fontStyle: 'bold' }, 2: { cellWidth: 24, halign: 'right' }, 3: { cellWidth: 'auto' }, 4: { cellWidth: 26, halign: 'center' }, 5: { cellWidth: 26, halign: 'center' } },
-                    didParseCell: d => {
-                        if (d.section !== 'body') return;
-                        if (d.column.index === 4 && Number(d.cell.raw) > 0) { d.cell.styles.textColor = PDF_RED; d.cell.styles.fontStyle = 'bold'; }
-                        if (d.column.index === 5 && Number(d.cell.raw) > 0) { d.cell.styles.textColor = [14, 120, 115]; d.cell.styles.fontStyle = 'bold'; }
-                        if (d.column.index === 0) { d.cell.styles.textColor = PDF_NAVY; d.cell.styles.fontStyle = 'bold'; }
-                    },
-                    didDrawCell: d => {
-                        if (d.section !== 'body' || d.column.index !== 3) return;
-                        const c = d.cell, key = STAT_KEYS[d.row.index];
-                        const bx2 = c.x + 3, bw2 = c.width - 6, by2 = c.y + c.height / 2 - 1.8;
-                        doc.setFillColor(226, 232, 240); doc.roundedRect(bx2, by2, bw2, 3.6, 1.8, 1.8, 'F');
-                        const share = total > 0 ? Math.min(1, (stats[key] || 0) / total) : 0;
-                        const barCol = (key === 'Dead' || key === 'Expired') ? PDF_RED : (key === 'Signal' ? PDF_GREEN : [100, 116, 139]);
-                        if (share > 0) { doc.setFillColor(...barCol); doc.roundedRect(bx2, by2, Math.max(bw2 * share, 2.2), 3.6, 1.8, 1.8, 'F'); }
-                    }
-                });
-                y = doc.lastAutoTable.finalY + 9;
-                doc.setFont('helvetica', 'italic'); doc.setFontSize(7.5); doc.setTextColor(...PDF_MUTED);
-                const note = doc.splitTextToSize('Note: category counts may overlap (a vehicle can be Dead and Expired at the same time), so the total is tracked independently and is not the sum of the categories. Wrong / correct install figures come from reviewed vehicle records.', W - 28);
-                doc.text(note, 14, y);
+                // ---- 3. Status analysis ----
+                doc.addPage();
+                txt('Status Analysis', M, 34, 18, RPT_INK, true);
+                txt('Percentages are shown against the ' + totalTxt + ' vehicle' + (s.total === 1 ? '' : 's') + ' in this report.', M, 41, 9, RPT_MUT, false);
+                heading('Status Distribution', 58);
+                const rows = s.statusRows.filter(r => r[1] > 0).map(r => [r[0], r[1].toLocaleString('en-US'), s.pct(r[1]), '']);
+                if (!rows.length) rows.push(['No vehicles in this report', '', '', '']);
+                else rows.push(['Total in report', totalTxt, s.total ? '100.0%' : '0.0%', '']);
+                const cnt = s.statusRows.filter(r => r[1] > 0);
+                doc.autoTable(tblBase({ startY: 63, head: [['STATUS', 'VEHICLES', '% OF REPORT', 'DISTRIBUTION']], body: rows,
+                    columnStyles: { 0: { cellWidth: 46 }, 1: { cellWidth: 26, halign: 'right' }, 2: { cellWidth: 28, halign: 'right', textColor: RPT_MUT }, 3: { cellWidth: 'auto' } },
+                    didParseCell: h => { if (h.section === 'body' && h.column.index === 0) { const c = RPT_STATUS_COL[h.cell.raw]; if (c) { h.cell.styles.textColor = c; h.cell.styles.fontStyle = 'bold'; } if (h.cell.raw === 'Total in report') h.cell.styles.fontStyle = 'bold'; }
+                        if (h.section === 'body' && h.row.index === rows.length - 1 && cnt.length) { h.cell.styles.fontStyle = 'bold'; h.cell.styles.lineColor = RPT_INK; } },
+                    didDrawCell: h => { if (h.section !== 'body' || h.column.index !== 3 || h.row.index >= cnt.length) return;
+                        const r = cnt[h.row.index], bx = h.cell.x + 3, bw = h.cell.width - 6, by = h.cell.y + h.cell.height / 2 - 1;
+                        doc.setFillColor(...RPT_TRACK); doc.rect(bx, by, bw, 2, 'F');
+                        doc.setFillColor(...(RPT_STATUS_COL[r[0]] || RPT_GRAY)); doc.rect(bx, by, Math.max(bw * (s.total ? r[1] / s.total : 0), 0.6), 2, 'F'); } }));
+                const by2 = doc.lastAutoTable.finalY + 14;
+                heading('Installation Breakdown', by2);
+                const ib = [['Installation check', 'Correct', s.correct], ['', 'Wrong', s.wrong], ['Hardware installed', 'Yes', s.instYes], ['', 'No', s.instNo]]
+                    .concat(s.instGroups.map((g, i) => [i === 0 ? 'Installation status' : '', g[0], g[1]]))
+                    .map(r => [r[0], r[1], r[2].toLocaleString('en-US'), s.pct(r[2])]);
+                doc.autoTable(tblBase({ startY: by2 + 5, head: [['CATEGORY', 'VALUE', 'VEHICLES', '% OF REPORT']], body: ib,
+                    columnStyles: { 0: { cellWidth: 50, textColor: RPT_MUT }, 1: { cellWidth: 46 }, 2: { cellWidth: 26, halign: 'right', fontStyle: 'bold' }, 3: { halign: 'right', textColor: RPT_MUT } },
+                    didParseCell: h => { if (h.section === 'body' && h.column.index === 1 && h.cell.raw === 'Wrong' && s.wrong > 0) { h.cell.styles.textColor = RPT_RED; h.cell.styles.fontStyle = 'bold'; } } }));
             }
 
-            // ================= 4. VEHICLE REGISTER =================
-            if (opts.vehicles) {
-                const list = pdfScopeCars(cars, scope).slice().sort((a, b) =>
-                    getCompanyName(a.companyId).localeCompare(getCompanyName(b.companyId)) || String(a.plateNumber).localeCompare(String(b.plateNumber)));
-                const focus = scopeTitle.replace(' Report', '');
-                if (opts.stats) { doc.addPage(); y = 32; }
-                pdfSection(doc, 'Vehicle Register  -  ' + focus + ' (' + list.length + ')', y);
-                if (!list.length) {
-                    doc.setFont('helvetica', 'italic'); doc.setFontSize(9); doc.setTextColor(...PDF_MUTED);
-                    doc.text('No vehicles match this focus for the selected company.', 14, y + 11);
-                } else {
-                    const showComp = compId === 'ALL';
-                    const head = [showComp ? ['#', 'Company', 'Plate #', 'VIN / Chassis', 'Device #', 'SIM #', 'Status', 'Installed', 'Check'] : ['#', 'Plate #', 'VIN / Chassis', 'Device #', 'SIM #', 'Status', 'Installed', 'Check']];
-                    const body = list.map((v, i) => {
-                        const r = [v.plateNumber, v.vin || '-', v.deviceNumber || '-', v.simCardNumber || '-', v.status, v.installed || '-', v.wrongInstall ? 'Wrong' : 'Correct'];
-                        return [i + 1].concat(showComp ? [getCompanyName(v.companyId)].concat(r) : r);
-                    });
-                    const sIdx = showComp ? 6 : 5, cIdx = showComp ? 8 : 7;
-                    doc.autoTable({
-                        startY: y + 5,
-                        head, body,
-                        theme: 'plain',
-                        margin: { left: 14, right: 14, top: 26, bottom: 18 },
-                        styles: { font: 'helvetica', fontSize: 7.6, cellPadding: 2.4, textColor: PDF_INK, lineColor: PDF_LINE, lineWidth: { bottom: 0.2 }, overflow: 'linebreak' },
-                        headStyles: { fillColor: PDF_NAVY, textColor: 255, fontStyle: 'bold', fontSize: 7.6, lineWidth: 0 },
-                        alternateRowStyles: { fillColor: PDF_SOFT },
-                        columnStyles: { 0: { cellWidth: 9, textColor: PDF_MUTED } },
-                        didParseCell: d => {
-                            if (d.section !== 'body') return;
-                            if (d.column.index === sIdx) { d.cell.styles.textColor = PDF_COL[d.cell.raw] || PDF_INK; d.cell.styles.fontStyle = 'bold'; }
-                            if (d.column.index === cIdx) { d.cell.styles.fontStyle = 'bold'; d.cell.styles.textColor = d.cell.raw === 'Wrong' ? [220, 38, 38] : [5, 150, 105]; }
-                        }
-                    });
-                }
+            if (cfg.register) {
+                // ---- 4. Vehicle register (landscape) ----
+                doc.addPage('a4', 'l');
+                const LM = 14, LW = 297 - 2 * LM;
+                txt('Vehicle Register', LM, 30, 18, RPT_INK, true);
+                txt(vs.length.toLocaleString('en-US') + ' vehicle' + (vs.length === 1 ? '' : 's') + ' included in this report', LM, 37, 9, RPT_MUT, false);
+                if (!vs.length) txt('No vehicles match this report.', LM, 52, 10, RPT_MUT, false);
+                else doc.autoTable(tblBase({ startY: 44, margin: { left: LM, right: LM, top: 24, bottom: 18 },
+                    head: [['NO.', 'COMPANY', 'PLATE NUMBER', 'VIN / CHASSIS', 'DEVICE NUMBER', 'SIM CARD', 'STATUS', 'INSTALLATION STATUS', 'INSTALLATION CHECK', 'NOTES']],
+                    body: vs.map((v, i) => [i + 1, getCompanyName(v.companyId), v.plateNumber, v.vin || '-', v.deviceNumber || '-', v.simCardNumber || '-', v.status, v.installationStatus || '-', v.wrongInstall ? 'Wrong' : 'Correct', v.notes || '']),
+                    styles: { font: 'helvetica', fillColor: [255, 255, 255], fontSize: 7.4, cellPadding: { top: 2.2, bottom: 2.2, left: 1.8, right: 1.8 }, textColor: RPT_INK, lineColor: RPT_LINE, lineWidth: { bottom: 0.2 }, overflow: 'linebreak' },
+                    columnStyles: { 0: { cellWidth: 9, textColor: RPT_MUT }, 1: { cellWidth: 34 }, 2: { cellWidth: 25, fontStyle: 'bold' }, 3: { cellWidth: 42 }, 4: { cellWidth: 28 }, 5: { cellWidth: 32 }, 6: { cellWidth: 20 }, 7: { cellWidth: 26 }, 8: { cellWidth: 24 }, 9: { cellWidth: 'auto', textColor: RPT_MUT } },
+                    didParseCell: h => { if (h.section !== 'body') return;
+                        if (h.column.index === 6) { h.cell.styles.textColor = RPT_STATUS_COL[h.cell.raw] || RPT_INK; h.cell.styles.fontStyle = 'bold'; }
+                        if (h.column.index === 8) { if (h.cell.raw === 'Wrong') { h.cell.styles.textColor = RPT_RED; h.cell.styles.fontStyle = 'bold'; } else h.cell.styles.textColor = RPT_MUT; } } }));
             }
 
-            // ---- running header + footer on every page ----
+            // ---- running header / footer ----
             const pages = doc.internal.getNumberOfPages();
             for (let i = 1; i <= pages; i++) {
                 doc.setPage(i);
+                const w = doc.getPageWidth(i), h = doc.getPageHeight(i), m = w > 250 ? LM_ : M;
                 if (i > 1) {
-                    doc.setFillColor(...PDF_NAVY); doc.rect(0, 0, W, 16, 'F');
-                    doc.setFillColor(...PDF_BLUE); doc.rect(0, 16, W, 0.9, 'F');
-                    pdfLogo(doc, logo, 14, 3.5, 23, 8.75);
-                    doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(255, 255, 255);
-                    doc.text('SecurePath', 41, 9.6);
-                    doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(148, 163, 184);
-                    doc.text(scopeTitle + '  |  ' + compName, W - 14, 9.6, { align: 'right' });
+                    doc.addImage(RPT_ICON, 'PNG', m, 9, 5.5, 5.5);
+                    txt('CLICKLIFE SECUREPATH', m + 8, 12.8, 7, RPT_MUT, true, { charSpace: 1 });
+                    txt(d.title + '  |  ' + d.compName, w - m, 12.8, 7.5, RPT_MUT, false, { align: 'right' });
+                    rule(m, 17, w - m, RPT_LINE);
                 }
-                doc.setDrawColor(...PDF_LINE); doc.setLineWidth(0.3); doc.line(14, H - 13, W - 14, H - 13);
-                doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(...PDF_MUTED);
-                doc.text('Clicklife SecurePath  |  Confidential fleet report', 14, H - 8);
-                doc.text('Page ' + i + ' of ' + pages, W - 14, H - 8, { align: 'right' });
+                rule(m, h - 13, w - m, RPT_LINE);
+                txt('Clicklife SecurePath  |  Confidential fleet report', m, h - 8, 7.5, RPT_MUT, false);
+                txt('Page ' + i + ' of ' + pages, w - m, h - 8, 7.5, RPT_MUT, false, { align: 'right' });
             }
-
-            const slug = compName.replace(/[^a-z0-9]+/gi, '_').replace(/^_|_$/g, '');
-            const scopeSlug = scope.replace(/[^a-z0-9]+/gi, '_');
-            doc.save(`Clicklife_${scopeSlug}_${slug}_${now.toISOString().slice(0, 10)}.pdf`);
+            const slug = d.compName.replace(/[^a-z0-9]+/gi, '_').replace(/^_|_$/g, '');
+            if (!cfg.__noSave) doc.save(`Clicklife_${cfg.type.replace(/[^a-z0-9]+/gi, '_')}_${slug}_${d.generated.toISOString().slice(0, 10)}.pdf`);
+            return doc;
         }
+        const LM_ = 14;
 
-        function pdfFormChoice() {
-            return {
-                compId: document.getElementById('pdfCompany')?.value || window.AppState.selectedCompanyId,
-                scope: document.getElementById('pdfScope')?.value || 'ALL'
-            };
-        }
-
+        window.triggerReportPDF = async function() {
+            const cfg = rptCfg();
+            if (!cfg.summary && !cfg.register) { showNotification('Select at least one section to include.', 'error'); return; }
+            await buildReportPDF(cfg);
+            showNotification('PDF report generated.', 'success');
+        };
+        // Dashboard shortcut: executive summary of the selected company's full fleet.
         window.triggerQuickPDF = async function() {
-            const c = pdfFormChoice();
-            await buildReportPDF({ stats: true, vehicles: false, compId: c.compId, scope: 'ALL' });
+            await buildReportPDF({ compId: window.AppState.selectedCompanyId || 'ALL', type: 'EXEC', summary: true, register: false, filters: {} });
             showNotification('Quick summary downloaded.', 'success');
         };
 
-        window.triggerCustomPDF = async function() {
-            const c = pdfFormChoice();
-            const stats = !!document.getElementById('pdfIncludeStats')?.checked, vehicles = !!document.getElementById('pdfIncludeVehicles')?.checked;
-            if (!stats && !vehicles) { showNotification('Select at least one section to include.', 'error'); return; }
-            await buildReportPDF({ stats, vehicles, compId: c.compId, scope: c.scope });
-            showNotification('Professional PDF generated.', 'success');
+        // Consistency self-test: every report type must show the same vehicles in count, stats and table.
+        window.rptSelfTest = function(compId) {
+            const out = [];
+            RPT_TYPES.forEach(t => {
+                const cfg = { compId: compId || 'ALL', type: t.k, filters: { status: 'ALL', wrong: 'ALL', installed: 'ALL', instStatus: 'ALL' } };
+                const d = buildReportData(cfg), s = d.stats;
+                const sum = s.statusRows.reduce((a, r) => a + r[1], 0);
+                const ok = s.total === d.vehicles.length && sum === s.total && s.wrong + s.correct === s.total && (!t.test || d.vehicles.every(t.test));
+                out.push({ type: t.k, vehicles: s.total, statusSum: sum, ok });
+            });
+            console.table(out); return out;
         };
-
 
 
         function renderBackupView() {
