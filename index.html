@@ -403,6 +403,7 @@
 
             // Application Data
             companies: [],
+            users: [],
             vehicles: [],
             manualStats: {}, // { companyId: { statusKey: count } }
             statsHistory: [],
@@ -440,6 +441,7 @@
                 try {
                     const parsed = JSON.parse(savedData);
                     window.AppState.companies = parsed.companies || [];
+                    window.AppState.users = parsed.users || [];
                     window.AppState.vehicles = parsed.vehicles || [];
                     window.AppState.manualStats = parsed.manualStats || {};
                     window.AppState.statsHistory = parsed.statsHistory || [];
@@ -586,6 +588,7 @@
         function buildPayload() {
             return {
                 companies: window.AppState.companies,
+                users: window.AppState.users,
                 vehicles: window.AppState.vehicles,
                 manualStats: window.AppState.manualStats,
                 statsHistory: window.AppState.statsHistory,
@@ -698,6 +701,7 @@
         function applyCloudData(c) {
             const st = window.AppState;
             st.companies = c.companies || [];
+            st.users = c.users || [];
             st.vehicles = c.vehicles || [];
             st.manualStats = c.manualStats || {};
             st.statsHistory = c.statsHistory || [];
@@ -816,7 +820,7 @@
             dashboard: '<rect x="3" y="3" width="8" height="10"/><rect x="13" y="3" width="8" height="6"/><rect x="13" y="11" width="8" height="10"/><rect x="3" y="15" width="8" height="6"/>',
             companies: '<path d="M4 21V4l9-2v19M13 8h7v13M2 21h20M8 8h1M8 12h1M8 16h1M16 12h1M16 16h1"/>',
             cars: '<path d="M3 17v-5l2-5h14l2 5v5M3 12h18M3 17h3M18 17h3M6 17v2h3v-2M15 17v2h3v-2"/><path d="M7 14.5h2M15 14.5h2"/>',
-            installation: '<rect x="7" y="7" width="10" height="10"/><path d="M10 3v4M14 3v4M10 17v4M14 17v4M3 10h4M3 14h4M17 10h4M17 14h4"/>',
+            users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6M16 4.8a3.5 3.5 0 0 1 0 6.4M18 14.4c2.2.7 3.5 2.6 3.5 5.6"/>',
             fixed: '<path d="M4 20v-4M9 20v-7M14 20V9"/><path d="M16.5 6.5l2.5 2.5L23 4"/>',
             reports: '<path d="M6 2h8l5 5v15H6z"/><path d="M14 2v5h5M9 12h7M9 15.5h7M9 19h4"/>',
             backup: '<ellipse cx="12" cy="5.5" rx="8" ry="3"/><path d="M4 5.5v13c0 1.7 3.6 3 8 3s8-1.3 8-3v-13M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>',
@@ -1066,7 +1070,7 @@
         };
 
 
-        const CL_TABS = [['dashboard','Dashboard'],['companies','Companies'],['cars','Vehicles'],['installation','Installation'],['fixed','Fixed Cars'],['reports','Reports'],['backup','Backup']];
+        const CL_TABS = [['dashboard','Dashboard'],['companies','Companies'],['cars','Vehicles'],['users','Users'],['fixed','Fixed Cars'],['reports','Reports'],['backup','Backup']];
         function renderNavLink(tabKey, label) {
             const on = window.AppState.activeTab === tabKey;
             const waiting = tabKey === 'fixed' ? window.AppState.vehicles.filter(v => !v.archived && v.fixedAt && (v.signalBack || 'pending') === 'pending').length : 0;
@@ -1651,68 +1655,69 @@
         };
 
 
-        function renderInstallationView() {
-            const installedCars = window.AppState.vehicles.filter(v => !v.archived && v.installed === 'Yes');
-            const notInstalledCars = window.AppState.vehicles.filter(v => !v.archived && v.installed === 'No');
-
+        function renderUsersView() {
+            const st = window.AppState;
+            const comps = st.companies;
+            const rows = st.users.map(u => `
+                <tr class="border-t border-slate-200 dark:border-slate-700">
+                    <td class="py-3 px-4 font-medium">${escUser(u.email)}</td>
+                    <td class="py-3 px-4 font-mono text-xs">${st.showPw && st.showPw[u.id] ? escUser(u.password) : '••••••••'}
+                        <button onclick="toggleUserPw('${u.id}')" class="ml-2 text-[11px] underline opacity-70">${st.showPw && st.showPw[u.id] ? 'Hide' : 'Show'}</button></td>
+                    <td class="py-3 px-4">${escUser(getCompanyName(u.companyId))}</td>
+                    <td class="py-3 px-4 text-right"><button onclick="deleteUser('${u.id}')" class="cl-btn bad px-2.5 py-1 rounded text-[11px] font-semibold">Delete</button></td>
+                </tr>`).join('');
             return `
             <div class="space-y-6">
                 <div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                    <h2 class="text-2xl font-bold">Installation Status & Hardware Corrections</h2>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                        Track device/SIM installation workflow and verify hardware correctness (Wrong vs Correct Data).
-                    </p>
+                    <h2 class="text-2xl font-bold">Users</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Create an email and password for a user and choose which company they belong to.</p>
                 </div>
-
-                <!-- Hardware Data Accuracy Overview -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="font-bold text-slate-800 dark:text-slate-100 flex items-center space-x-2">
-                                                                <span>Installed Tracking Hardware (${installedCars.length})</span>
-                            </h3>
-                        </div>
-                        <div class="space-y-2 max-h-80 overflow-y-auto pr-1">
-                            ${installedCars.map(v => `
-                            <div class="p-3 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 text-xs flex items-center justify-between">
-                                <div>
-                                    <div class="font-bold text-brand-600 dark:text-brand-400 font-mono">${v.plateNumber}</div>
-                                    <div class="text-[11px] text-slate-500">Device: ${v.deviceNumber || 'N/A'}</div>
-                                </div>
-                                <div class="text-right">
-                                    <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-semibold text-[10px]">
-                                        ${v.installationStatus}
-                                    </span>
-                                </div>
-                            </div>
-                            `).join('')}
-                        </div>
-                    </div>
-
-                    <div class="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="font-bold text-slate-800 dark:text-slate-100 flex items-center space-x-2">
-                                                                <span>Pending Installation (${notInstalledCars.length})</span>
-                            </h3>
-                        </div>
-                        <div class="space-y-2 max-h-80 overflow-y-auto pr-1">
-                            ${notInstalledCars.map(v => `
-                            <div class="p-3 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 text-xs flex items-center justify-between">
-                                <div>
-                                    <div class="font-bold text-slate-800 dark:text-slate-200 font-mono">${v.plateNumber}</div>
-                                    <div class="text-[11px] text-slate-500">VIN: ${v.vin}</div>
-                                </div>
-                                <button onclick="openEditVehicleModal('${v.id}')" class="px-2.5 py-1 bg-brand-600 hover:bg-brand-500 text-white rounded text-[11px] font-semibold">
-                                    Update Status
-                                </button>
-                            </div>
-                            `).join('')}
-                        </div>
-                    </div>
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <h3 class="font-bold mb-4">Create User</h3>
+                    ${comps.length ? `
+                    <form onsubmit="handleAddUser(event)" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                        <label class="text-xs font-semibold block">Email
+                            <input type="email" id="userEmail" required autocomplete="off" class="mt-1 w-full py-2 px-3 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg"></label>
+                        <label class="text-xs font-semibold block">Password
+                            <input type="text" id="userPw" required minlength="6" autocomplete="off" class="mt-1 w-full py-2 px-3 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg"></label>
+                        <label class="text-xs font-semibold block">Company
+                            <select id="userCompany" required class="mt-1 w-full py-2 px-3 text-sm bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg">
+                                <option value="" disabled selected>Choose company</option>
+                                ${comps.map(c => `<option value="${c.id}">${escUser(c.name)}</option>`).join('')}
+                            </select></label>
+                        <button type="submit" class="cl-btn px-4 py-2.5 rounded-lg text-xs font-semibold">Create User</button>
+                    </form>` : `<p class="text-sm text-slate-500">Add a company first (Companies tab), then you can create users for it.</p>`}
                 </div>
-            </div>
-            `;
+                <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead><tr class="text-xs uppercase text-slate-500"><th class="py-3.5 px-4">Email</th><th class="py-3.5 px-4">Password</th><th class="py-3.5 px-4">Company</th><th class="py-3.5 px-4"></th></tr></thead>
+                        <tbody>${rows || '<tr><td colspan="4" class="py-8 px-4 text-center text-slate-500">No users yet.</td></tr>'}</tbody>
+                    </table>
+                </div>
+            </div>`;
         }
+        function escUser(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
+        window.toggleUserPw = function(id) { const st = window.AppState; st.showPw = st.showPw || {}; st.showPw[id] = !st.showPw[id]; renderApp(); };
+        window.handleAddUser = function(e) {
+            e.preventDefault();
+            const st = window.AppState;
+            const email = document.getElementById('userEmail').value.trim().toLowerCase();
+            const password = document.getElementById('userPw').value;
+            const companyId = document.getElementById('userCompany').value;
+            if (!email || !password || !companyId) { showNotification('Email, password and company are required.', 'warning'); return; }
+            if (st.users.some(u => u.email === email)) { showNotification('A user with this email already exists.', 'warning'); return; }
+            st.users.push({ id: 'usr_' + Date.now(), email, password, companyId, createdAt: new Date().toISOString(), createdBy: st.currentUser || 'admin' });
+            saveDataLocally();
+            showNotification(`User ${email} created for ${getCompanyName(companyId)}.`, 'success');
+        };
+        window.deleteUser = function(id) {
+            const st = window.AppState;
+            const u = st.users.find(x => x.id === id);
+            if (!u || !confirm(`Delete user ${u.email}?`)) return;
+            st.users = st.users.filter(x => x.id !== id);
+            saveDataLocally();
+            showNotification('User deleted.', 'info');
+        };
 
 
         // ===== Unified report engine =====
@@ -2080,6 +2085,7 @@
                 version: '1.0',
                 backupDate: new Date().toISOString(),
                 companies: window.AppState.companies,
+                users: window.AppState.users,
                 vehicles: window.AppState.vehicles,
                 manualStats: window.AppState.manualStats,
                 statsHistory: window.AppState.statsHistory,
@@ -2127,6 +2133,7 @@
 
             const data = modal.backupData;
             window.AppState.companies = data.companies || [];
+            window.AppState.users = data.users || [];
             window.AppState.vehicles = data.vehicles || [];
             window.AppState.manualStats = data.manualStats || {};
             window.AppState.statsHistory = data.statsHistory || [];
@@ -2596,8 +2603,8 @@
                 case 'cars':
                     mainContent = renderCarsView(false);
                     break;
-                case 'installation':
-                    mainContent = renderInstallationView();
+                case 'users':
+                    mainContent = renderUsersView();
                     break;
                 case 'fixed':
                     mainContent = renderFixedView();
