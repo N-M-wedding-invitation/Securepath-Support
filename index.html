@@ -971,6 +971,10 @@
             </div>`;
         }
 
+        const todayStr = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+        const fmtVehDate = s => { if (!s) return ''; const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s); const d = m ? new Date(+m[1], +m[2] - 1, +m[3]) : new Date(s); return isNaN(d) ? '' : d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }); };
+        const vehDateOf = v => v.addedDate || v.createdAt || '';
+
         function renderLogin() {
             return `
             <div class="min-h-screen flex items-center justify-center bg-slate-900 p-4">
@@ -1435,6 +1439,7 @@
                                     <th class="py-3.5 px-4">Status</th>
                                     <th class="py-3.5 px-4">Installed</th>
                                     <th class="py-3.5 px-4">Installation Status</th>
+                                    <th class="py-3.5 px-4">Date</th>
                                     <th class="py-3.5 px-4">Install Check</th>
                                     <th class="py-3.5 px-4 text-center">Actions</th>
                                 </tr>
@@ -1442,7 +1447,7 @@
                             <tbody class="divide-y divide-slate-200 dark:divide-slate-700 text-xs">
                                 ${list.length === 0 ? `
                                 <tr>
-                                    <td colspan="11" class="py-12 text-center text-slate-400">
+                                    <td colspan="12" class="py-12 text-center text-slate-400">
                                                                                 No vehicles found matching criteria.
                                     </td>
                                 </tr>
@@ -1464,6 +1469,7 @@
                                         </td>
                                         <td class="py-3 px-4 font-medium">${v.installed === 'Yes' ? '<span class="text-emerald-600 font-bold">Yes</span>' : '<span class="text-rose-500 font-bold">No</span>'}</td>
                                         <td class="py-3 px-4">${v.installationStatus}</td>
+                                        <td class="py-3 px-4 whitespace-nowrap">${fmtVehDate(vehDateOf(v)) || '<span class="text-slate-400">—</span>'}</td>
                                         <td class="py-3 px-4"><span class="cl-pill ${v.wrongInstall ? 'w' : 'c'}">${v.wrongInstall ? 'Wrong' : 'Correct'}</span></td>
                                         <td class="py-3 px-4 text-center">
                                             <div class="flex items-center justify-center space-x-1">
@@ -1504,15 +1510,19 @@
 
         window.handleAddVehicle = function(e, forceAdd = false) {
             if (e) e.preventDefault();
-            const companyId = document.getElementById('vehCompId').value;
-            const plateNumber = document.getElementById('vehPlate').value.trim();
-            const vin = document.getElementById('vehVin').value.trim();
-            const deviceNumber = document.getElementById('vehDevice').value.trim();
-            const simCardNumber = document.getElementById('vehSim').value.trim();
-            const status = document.getElementById('vehStatus').value;
-            const installed = document.getElementById('vehInstalled').value;
-            const installationStatus = document.getElementById('vehInstStatus').value;
-            const notes = document.getElementById('vehNotes').value.trim();
+            // When confirming "Add Anyway" the form is no longer in the DOM, so reuse the saved values.
+            const nd = forceAdd && window.AppState.modal && window.AppState.modal.newData;
+            const el = id => document.getElementById(id);
+            const companyId = nd ? nd.companyId : el('vehCompId').value;
+            const plateNumber = nd ? nd.plateNumber : el('vehPlate').value.trim();
+            const vin = nd ? nd.vin : el('vehVin').value.trim();
+            const deviceNumber = nd ? nd.deviceNumber : el('vehDevice').value.trim();
+            const simCardNumber = nd ? nd.simCardNumber : el('vehSim').value.trim();
+            const status = nd ? nd.status : el('vehStatus').value;
+            const installed = nd ? nd.installed : el('vehInstalled').value;
+            const installationStatus = nd ? nd.installationStatus : el('vehInstStatus').value;
+            const addedDate = (nd ? nd.addedDate : el('vehDate').value) || todayStr();
+            const notes = nd ? nd.notes : el('vehNotes').value.trim();
 
             if (!companyId || !plateNumber || !vin) {
                 alert("Company, Plate Number, and VIN are required.");
@@ -1529,7 +1539,7 @@
                     window.AppState.modal = {
                         type: 'DUPLICATE_WARNING',
                         existing,
-                        newData: { companyId, plateNumber, vin, deviceNumber, simCardNumber, status, installed, installationStatus, notes }
+                        newData: { companyId, plateNumber, vin, deviceNumber, simCardNumber, status, installed, installationStatus, addedDate, notes }
                     };
                     renderApp();
                     return;
@@ -1550,6 +1560,7 @@
                 installationStatus,
                 notes,
                 archived: false,
+                addedDate,
                 createdAt: new Date().toISOString()
             };
 
@@ -1586,6 +1597,7 @@
             const newInstalled = document.getElementById('editVehInstalled').value;
             const newInstStatus = document.getElementById('editVehInstStatus').value;
             const newNotes = document.getElementById('editVehNotes').value.trim();
+            const newDate = document.getElementById('editVehDate').value;
             const reason = document.getElementById('editVehReason').value.trim();
 
             const target = window.AppState.vehicles.find(item => item.id === v.id);
@@ -1636,6 +1648,7 @@
             target.installed = newInstalled;
             target.installationStatus = newInstStatus;
             target.notes = newNotes;
+            if (newDate) target.addedDate = newDate;
 
             saveDataLocally();
             window.AppState.modal = null;
@@ -1871,9 +1884,9 @@
             }
             if (cfg.register) {
                 const rows = cfg.plateOnly ? [['Company', 'Plate Number']].concat(v.map(x => [getCompanyName(x.companyId), x.plateNumber]))
-                    : [['No.', 'Company', 'Plate Number', 'VIN / Chassis', 'Device Number', 'SIM Card', 'Status', 'Installed', 'Installation Status', 'Installation Check', 'Notes']]
-                        .concat(v.map((x, i) => [i + 1, getCompanyName(x.companyId), x.plateNumber, x.vin || '', x.deviceNumber || '', x.simCardNumber || '', x.status, x.installed || '', x.installationStatus || '', x.wrongInstall ? 'Wrong installation' : 'Correct', x.notes || '']));
-                const ws = sheet(rows, cfg.plateOnly ? [28, 18] : [6, 26, 16, 24, 18, 22, 14, 10, 20, 20, 36]);
+                    : [['No.', 'Company', 'Plate Number', 'VIN / Chassis', 'Device Number', 'SIM Card', 'Status', 'Installed', 'Installation Status', 'Date', 'Installation Check', 'Notes']]
+                        .concat(v.map((x, i) => [i + 1, getCompanyName(x.companyId), x.plateNumber, x.vin || '', x.deviceNumber || '', x.simCardNumber || '', x.status, x.installed || '', x.installationStatus || '', fmtVehDate(vehDateOf(x)), x.wrongInstall ? 'Wrong installation' : 'Correct', x.notes || '']));
+                const ws = sheet(rows, cfg.plateOnly ? [28, 18] : [6, 26, 16, 24, 18, 22, 14, 10, 20, 14, 20, 36]);
                 ws['!autofilter'] = { ref: ws['!ref'] };
                 XLSX.utils.book_append_sheet(wb, ws, 'Vehicles');
                 const issues = v.filter(x => rptIssues(x).length);
@@ -1981,13 +1994,13 @@
                 txt(vs.length.toLocaleString('en-US') + ' vehicle' + (vs.length === 1 ? '' : 's') + ' included in this report', LM, 37, 9, RPT_MUT, false);
                 if (!vs.length) txt('No vehicles match this report.', LM, 52, 10, RPT_MUT, false);
                 else doc.autoTable(tblBase({ startY: 44, margin: { left: LM, right: LM, top: 24, bottom: 18 },
-                    head: [['NO.', 'COMPANY', 'PLATE NUMBER', 'VIN / CHASSIS', 'DEVICE NUMBER', 'SIM CARD', 'STATUS', 'INSTALLATION STATUS', 'INSTALLATION CHECK', 'NOTES']],
-                    body: vs.map((v, i) => [i + 1, getCompanyName(v.companyId), v.plateNumber, v.vin || '-', v.deviceNumber || '-', v.simCardNumber || '-', v.status, v.installationStatus || '-', v.wrongInstall ? 'Wrong' : 'Correct', v.notes || '']),
+                    head: [['NO.', 'COMPANY', 'PLATE NUMBER', 'VIN / CHASSIS', 'DEVICE NUMBER', 'SIM CARD', 'STATUS', 'INSTALLATION STATUS', 'DATE', 'INSTALLATION CHECK', 'NOTES']],
+                    body: vs.map((v, i) => [i + 1, getCompanyName(v.companyId), v.plateNumber, v.vin || '-', v.deviceNumber || '-', v.simCardNumber || '-', v.status, v.installationStatus || '-', fmtVehDate(vehDateOf(v)) || '-', v.wrongInstall ? 'Wrong' : 'Correct', v.notes || '']),
                     styles: { font: 'helvetica', fillColor: [255, 255, 255], fontSize: 7.4, cellPadding: { top: 2.2, bottom: 2.2, left: 1.8, right: 1.8 }, textColor: RPT_INK, lineColor: RPT_LINE, lineWidth: { bottom: 0.2 }, overflow: 'linebreak' },
-                    columnStyles: { 0: { cellWidth: 9, textColor: RPT_MUT }, 1: { cellWidth: 34 }, 2: { cellWidth: 25, fontStyle: 'bold' }, 3: { cellWidth: 42 }, 4: { cellWidth: 28 }, 5: { cellWidth: 32 }, 6: { cellWidth: 20 }, 7: { cellWidth: 26 }, 8: { cellWidth: 24 }, 9: { cellWidth: 'auto', textColor: RPT_MUT } },
+                    columnStyles: { 0: { cellWidth: 8, textColor: RPT_MUT }, 1: { cellWidth: 28 }, 2: { cellWidth: 23, fontStyle: 'bold' }, 3: { cellWidth: 36 }, 4: { cellWidth: 25 }, 5: { cellWidth: 27 }, 6: { cellWidth: 18 }, 7: { cellWidth: 22 }, 8: { cellWidth: 21 }, 9: { cellWidth: 22 }, 10: { cellWidth: 'auto', textColor: RPT_MUT } },
                     didParseCell: h => { if (h.section !== 'body') return;
                         if (h.column.index === 6) { h.cell.styles.textColor = RPT_STATUS_COL[h.cell.raw] || RPT_INK; h.cell.styles.fontStyle = 'bold'; }
-                        if (h.column.index === 8) { if (h.cell.raw === 'Wrong') { h.cell.styles.textColor = RPT_RED; h.cell.styles.fontStyle = 'bold'; } else h.cell.styles.textColor = RPT_MUT; } } }));
+                        if (h.column.index === 9) { if (h.cell.raw === 'Wrong') { h.cell.styles.textColor = RPT_RED; h.cell.styles.fontStyle = 'bold'; } else h.cell.styles.textColor = RPT_MUT; } } }));
             }
 
             // ---- running header / footer ----
@@ -2380,6 +2393,10 @@
                                     <option value="Not Installed">Not Installed</option>
                                 </select>
                             </div>
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Date</label>
+                                <input type="date" id="vehDate" value="${todayStr()}" class="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg">
+                            </div>
                             <div class="md:col-span-2">
                                 <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Notes</label>
                                 <textarea id="vehNotes" rows="2" class="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg"></textarea>
@@ -2482,6 +2499,10 @@
                                 </select>
                             </div>
 
+                            <div>
+                                <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Date</label>
+                                <input type="date" id="editVehDate" value="${v.addedDate || (v.createdAt || '').slice(0, 10)}" class="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg">
+                            </div>
                             <div class="md:col-span-2">
                                 <label class="block text-xs font-semibold uppercase text-slate-500 mb-1">Notes</label>
                                 <textarea id="editVehNotes" rows="2" class="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg">${v.notes || ''}</textarea>
@@ -2525,6 +2546,7 @@
                             <div><strong>Correct SIM:</strong> <span class="font-mono">${v.correctSimCardNumber || 'N/A'}</span></div>
                             <div><strong>Status:</strong> ${v.status}</div>
                             <div><strong>Installation:</strong> ${v.installed} (${v.installationStatus})</div>
+                            <div><strong>Date:</strong> ${fmtVehDate(vehDateOf(v)) || 'N/A'}</div>
                         </div>
 
                         <h4 class="font-bold text-xs uppercase tracking-wider text-slate-500 mb-2">Vehicle Modification Audit Trail</h4>
