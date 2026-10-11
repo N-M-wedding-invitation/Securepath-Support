@@ -352,6 +352,91 @@
         .fx-empty { padding: 56px 16px; text-align: center; color: var(--mut); font-size: 13.5px; }
         .fx-empty b { display: block; color: var(--txt); font-size: 15px; margin-bottom: 6px; font-weight: 600; }
         @media print { .fx-seg, .fx-act { display: none !important; } }
+
+        /* ===== Sidebar navigation and clarity pass ===== */
+        .cl-filter-panel{border-color:var(--line)!important}
+        .cl-filter-heading{display:flex;align-items:center;gap:8px;padding:0 0 11px;border-bottom:1px solid var(--line);color:var(--txt);font-size:12px;font-weight:700}
+        .cl-filter-heading>.ic{color:var(--mut)}
+        .cl-filter-heading small{margin-left:auto;color:var(--mut);font-size:10px;font-weight:500}
+        .cl-search-wrap{min-height:40px}
+        .cl-search-icon{position:absolute;left:13px;top:50%;z-index:1;display:flex;transform:translateY(-50%);color:var(--mut);pointer-events:none}
+        #carSearch{padding-left:40px!important}
+
+        .cl-shell{display:flex;min-height:100vh;align-items:stretch}
+        .cl-sidebar{position:sticky;top:0;z-index:45;display:flex;flex:0 0 248px;flex-direction:column;gap:22px;width:248px;height:100vh;padding:24px 16px 18px;background:var(--card);border-right:1px solid var(--line)}
+        .cl-sidebar-head{padding:2px 10px 8px}
+        .cl-brand{min-height:40px;cursor:pointer}
+        .cl-sidebar-caption{display:block;margin:21px 0 0 2px;color:var(--mut);font-size:9px;font-weight:700;letter-spacing:.16em}
+        .cl-sidebar .cl-tabs{display:flex;flex:1;flex-direction:column;align-items:stretch;gap:5px;overflow:auto}
+        .cl-sidebar .cl-nav{width:100%;justify-content:flex-start;min-height:44px;padding:0 12px;border:1px solid transparent!important;border-radius:10px;text-align:left}
+        .cl-sidebar .cl-nav.on{background:var(--row2)!important;border-color:var(--line)!important;box-shadow:inset 3px 0 0 var(--acc)!important;font-weight:700}
+        .cl-sidebar .cl-nav.on::after{display:none}
+        .cl-sidebar .cl-nav:hover{background:var(--row)!important}
+        .cl-sidebar .cl-end{display:flex;flex-direction:column;align-items:stretch;gap:5px;margin:0;padding:0}
+        .cl-sidebar .cl-end .cl-nav{color:var(--mut)}
+        .cl-sidebar .cl-divider{display:block;width:100%;height:1px;margin:5px 0 9px;background:var(--line)}
+        .cl-workspace{min-width:0;flex:1}
+        .cl-main{max-width:1540px;padding:30px clamp(22px,3.2vw,48px) 64px}
+        .cl-top{align-items:center;margin-bottom:28px;padding-bottom:21px;border-bottom:1px solid var(--line)}
+        .cl-heading-block{min-width:0}
+        .cl-breadcrumb{display:flex;align-items:center;gap:8px;margin-bottom:9px;color:var(--mut);font-size:11px;font-weight:600}
+        .cl-breadcrumb button{display:inline-flex;align-items:center;gap:6px;padding:3px 5px;border:0;background:transparent;color:var(--mut);font-size:11px}
+        .cl-breadcrumb button:hover{color:var(--txt);background:var(--row);}
+        .cl-crumb-sep{color:var(--line)}
+        .cl-crumb-current{color:var(--txt)}
+        .cl-title{display:flex;align-items:center;gap:9px}
+        .cl-title .ic{color:var(--mut)}
+        .cl-company-picker{display:flex;flex-direction:column;gap:6px;min-width:220px;color:var(--mut);font-size:10px;font-weight:700;letter-spacing:.08em}
+        .cl-company-picker>span{display:flex;align-items:center;gap:6px}
+        .cl-company-picker select{width:100%}
+        /* Grouped filters, cleaner search prominence, alternating rows */
+        .rp-panel{box-shadow:0 1px 3px rgba(20,20,18,.035)}
+        .rp-grid+.rp-grid,.rp-filters{border-top:1px solid var(--line)}
+        label:has(> input#carSearch){position:relative}
+        #carSearch{min-height:44px;padding-left:40px!important;font-size:13px!important}
+        #carSearch:focus{box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 17%,transparent)!important}
+        .cl-main select,.cl-main input:not([type=checkbox]),.cl-main textarea{min-height:40px}
+        .cl-main table{border-spacing:0;padding:0;border:1px solid var(--line);border-radius:13px;overflow:hidden}
+        .cl-main thead th{position:sticky;top:0;z-index:2;padding:13px 14px!important;background:var(--row)!important;border-bottom:1px solid var(--line)!important;color:var(--mut)!important}
+        .cl-main tbody tr{transition:background .16s ease}
+        .cl-main tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--row) 72%,var(--card))!important}
+        .cl-main tbody tr:nth-child(odd) td{background:var(--card)!important}
+        .cl-main tbody tr:hover td{background:var(--row2)!important}
+        .cl-main tbody td{border-bottom:1px solid var(--line);padding:13px 14px!important}
+        .cl-main tbody tr:last-child td{border-bottom:0}
+        .cl-main tbody td:first-child{border-radius:0;padding-left:16px!important}
+        .cl-main tbody td:last-child{border-radius:0}
+        .cl-main button:not(.cl-nav):not(.cl-tile){min-height:38px;padding:8px 14px}
+        .cl-main .rp-btn,.cl-main .rp-tile{min-height:40px}
+        .cl-main button:hover{transform:translateY(-1px)}
+        .cl-main button:active{transform:translateY(0) scale(.985)}
+        .cl-main button:focus-visible,.cl-sidebar button:focus-visible,.cl-main a:focus-visible{outline:3px solid color-mix(in srgb,var(--acc) 50%,transparent);outline-offset:2px}
+        .cl-sidebar button{transition:background .16s ease,color .16s ease,border-color .16s ease,transform .16s ease}
+        .cl-sidebar button:hover{transform:translateX(2px)}
+        @media(max-width:900px){
+            .cl-sidebar{flex-basis:218px;width:218px;padding:20px 12px}
+            .cl-main{padding:24px 20px 54px}
+        }
+        @media(max-width:680px){
+            .cl-shell{display:block}
+            .cl-sidebar{position:sticky;top:0;width:100%;height:auto;min-height:62px;flex-direction:row;align-items:center;gap:10px;padding:8px 10px;border-right:0;border-bottom:1px solid var(--line)}
+            .cl-sidebar-head{padding:0;flex:none}.cl-sidebar-head .cl-brand{min-height:36px}.cl-sidebar-head .cl-brand .cl-logo-img{height:23px!important}.cl-sidebar-caption{display:none}
+            .cl-sidebar .cl-tabs{flex-direction:row;align-items:center;gap:3px;overflow-x:auto;flex:1}
+            .cl-sidebar .cl-nav{width:auto;min-width:38px;min-height:40px;justify-content:center;padding:0 9px}
+            .cl-sidebar .cl-nav span{display:none!important}
+            .cl-sidebar .cl-nav.on{box-shadow:inset 0 -3px 0 var(--acc)!important}
+            .cl-sidebar .cl-end{flex-direction:row;align-items:center;gap:2px}
+            .cl-sidebar .cl-end .cl-nav{width:38px;min-width:38px;padding:0;justify-content:center}
+            .cl-sidebar .cl-end .cl-nav span{display:none!important}
+            .cl-sidebar .cl-divider{width:1px;height:25px;margin:0 4px}
+            .cl-sidebar button:hover{transform:none}
+            .cl-main{padding:20px 14px 42px}
+            .cl-top{align-items:flex-start;gap:14px}
+            .cl-company-picker{min-width:min(42vw,200px)}
+            .cl-title{font-size:23px}
+        }
+        @media(prefers-reduced-motion:reduce){.cl-sidebar button,.cl-main button,.cl-main tbody tr{transition:none!important}}
+
     </style>
 </head>
 <body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-full flex flex-col transition-colors duration-150">
@@ -1083,26 +1168,34 @@
         function renderNavbar() {
             const dark = window.AppState.theme === 'dark';
             return `
-            <header class="cl-bar">
-                <div class="cl-brand" onclick="switchTab('dashboard')" title="Clicklife SecurePath">${CL_LOGO(28)}<span>SecurePath</span></div>
+            <aside class="cl-sidebar" aria-label="Application navigation">
+                <div class="cl-sidebar-head">
+                    <div class="cl-brand" onclick="switchTab('dashboard')" title="Clicklife SecurePath">${CL_LOGO(32)}<span>SecurePath</span></div>
+                    <span class="cl-sidebar-caption">FLEET OPERATIONS</span>
+                </div>
                 <nav class="cl-tabs" aria-label="Primary navigation">${CL_TABS.map(t => renderNavLink(t[0], t[1])).join('')}</nav>
                 <div class="cl-end" aria-label="Account actions">
                     <span class="cl-divider" aria-hidden="true"></span>
                     ${renderNavLink('settings','Settings')}
-                    <button onclick="toggleTheme()" aria-label="Toggle theme" class="cl-nav cl-action">${ic(dark ? 'sun' : 'moon')}<span>${dark ? 'Light' : 'Dark'}</span></button>
+                    <button onclick="toggleTheme()" aria-label="Toggle theme" class="cl-nav cl-action">${ic(dark ? 'sun' : 'moon')}<span>${dark ? 'Light theme' : 'Dark theme'}</span></button>
                     <button onclick="handleLogout()" aria-label="Log out" class="cl-nav cl-action danger">${ic('logout')}<span>Log out</span></button>
                 </div>
-            </header>`;
+            </aside>`;
         }
         function renderTopbar() {
             const st = window.AppState;
+            const page = CL_TABS.find(t => t[0] === st.activeTab) || (st.activeTab === 'settings' ? ['settings','Settings'] : ['dashboard','Dashboard']);
             return `
             <div class="cl-top">
-                <div><h1 class="cl-title">${(CL_TABS.find(t => t[0] === st.activeTab) || (st.activeTab === 'settings' ? [0,'Settings'] : [0,'Clicklife SecurePath']))[1]}</h1><p class="cl-sub">${getCompanyName(st.selectedCompanyId)}</p></div>
-                <select onchange="selectCompanyFilter(this.value)" class="cl-switch" aria-label="Company">
+                <div class="cl-heading-block">
+                    <nav class="cl-breadcrumb" aria-label="Breadcrumb"><button type="button" onclick="switchTab('dashboard')">${ic('dashboard',13)}<span>Home</span></button><span class="cl-crumb-sep">/</span><span class="cl-crumb-current">${page[1]}</span></nav>
+                    <h1 class="cl-title">${ic(page[0],22)}<span>${page[1]}</span></h1>
+                    <p class="cl-sub">${getCompanyName(st.selectedCompanyId)}</p>
+                </div>
+                <label class="cl-company-picker"><span>${ic('companies',14)}<span>Company scope</span></span><select onchange="selectCompanyFilter(this.value)" class="cl-switch" aria-label="Company">
                     <option value="ALL" ${st.selectedCompanyId === 'ALL' ? 'selected' : ''}>All Companies</option>
                     ${st.companies.map(c => `<option value="${c.id}" ${st.selectedCompanyId === c.id ? 'selected' : ''}>${c.name}</option>`).join('')}
-                </select>
+                </select></label>
             </div>`;
         }
 
@@ -1130,10 +1223,10 @@
 
                     <div class="flex items-center space-x-2">
                         <button onclick="switchTab('cars')" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold transition">
-                            View Vehicle List
+                            ${ic('cars',14)} View Vehicle List
                         </button>
                         <button onclick="triggerQuickPDF()" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg text-xs font-semibold transition shadow-sm">
-                            Quick PDF Report
+                            ${ic('reports',14)} Quick PDF Report
                         </button>
                     </div>
                 </div>
@@ -1375,18 +1468,19 @@
 
                     ${true ? `
                     <button onclick="openAddVehicleModal()" class="px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-lg text-xs shadow transition flex items-center space-x-2">
-                                                <span>Add New Vehicle</span>
+                                                ${ic('cars',14)}<span>Add New Vehicle</span>
                     </button>
                     ` : ''}
                 </div>
 
                 ${isArchivedMode ? '' : carsSummary(f.companyId)}
                 <!-- Search & Filters Bar -->
-                <div class="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+                <div class="cl-filter-panel bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm space-y-4">
+                    <div class="cl-filter-heading">${ic('settings',15)}<span>Search &amp; filters</span><small>Refine the vehicle list</small></div>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-3">
                         <!-- Single Unified Search Box -->
-                        <div class="lg:col-span-2 relative">
-                            <input type="text" id="carSearch" value="${f.search}" oninput="updateSearchFilter(this.value)" placeholder="Search Plate, VIN, Device #, or SIM #" class="w-full pl-3 pr-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-brand-500">
+                        <div class="lg:col-span-2 relative cl-search-wrap">
+                            <span class="cl-search-icon">${ic('cars',16)}</span><input type="text" id="carSearch" aria-label="Search vehicles" value="${f.search}" oninput="updateSearchFilter(this.value)" placeholder="Search plate, VIN, device, or SIM" class="w-full pl-3 pr-3 py-2 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-brand-500">
                         </div>
 
                         <!-- Company Filter -->
@@ -2671,12 +2765,16 @@
             const _anim = window.AppState._pageAnim; window.AppState._pageAnim = false;
             container.innerHTML = `
                 ${window.AppState.loading ? '<div class="cl-loader-bar"></div>' : ''}
-                ${renderNavbar()}
-                ${window.AppState.cloudStatus !== 'connected' ? `<div class="cl-warn">${window.AppState.cloudStatus === 'connecting' ? 'Connecting to Supabase...' : 'Supabase sync is not connected. Changes made on this PC will not appear on other PCs. Open Settings for details.'}</div>` : ''}
-                <main class="cl-main">
-                    ${renderTopbar()}
-                    <div class="cl-page ${_anim ? 'cl-page-in' : ''}">${mainContent}</div>
-                </main>
+                <div class="cl-shell">
+                    ${renderNavbar()}
+                    <div class="cl-workspace">
+                        ${window.AppState.cloudStatus !== 'connected' ? `<div class="cl-warn">${window.AppState.cloudStatus === 'connecting' ? 'Connecting to Supabase...' : 'Supabase sync is not connected. Changes made on this PC will not appear on other PCs. Open Settings for details.'}</div>` : ''}
+                        <main class="cl-main">
+                            ${renderTopbar()}
+                            <div class="cl-page ${_anim ? 'cl-page-in' : ''}">${mainContent}</div>
+                        </main>
+                    </div>
+                </div>
                 ${renderModal()}
                 ${notifHTML}
             `;
@@ -2689,4 +2787,4 @@
         };
     </script>
 </body>
-</html> need to add optaion in the report to get one from date to date
+</html>
