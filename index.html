@@ -437,6 +437,55 @@
         }
         @media(prefers-reduced-motion:reduce){.cl-sidebar button,.cl-main button,.cl-main tbody tr{transition:none!important}}
 
+
+        /* Company directory search and brand marks */
+        .cl-company-page-head{display:flex;align-items:center;justify-content:space-between;gap:18px}
+        .cl-company-page-title{display:flex;align-items:center;gap:13px}
+        .cl-company-heading-mark{width:42px;height:42px;display:grid;place-items:center;border:1px solid var(--line);border-radius:12px;background:var(--row);color:var(--mut)}
+        .cl-company-tools{display:flex;align-items:center;gap:14px}
+        .cl-company-search-wrap{position:relative;display:flex;align-items:center;flex:1;max-width:680px}
+        .cl-company-search-wrap input{width:100%;height:48px;padding:0 44px!important;border:1px solid var(--line)!important;border-radius:12px!important;background:var(--card)!important;color:var(--txt)!important;font-size:13px!important;box-shadow:0 1px 2px rgba(20,20,18,.04)}
+        .cl-company-search-wrap .cl-search-icon{left:15px;color:var(--mut)}
+        .cl-search-clear{position:absolute;right:7px;top:50%;transform:translateY(-50%);display:grid;place-items:center;width:34px;height:34px;min-height:34px!important;padding:0!important;background:transparent!important;color:var(--mut)!important;border:0!important}
+        .cl-search-clear:hover{background:var(--row)!important;color:var(--txt)!important}
+        .cl-company-result-count{color:var(--mut);font-size:11px;font-weight:600;white-space:nowrap}
+        .cl-company-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:18px}
+        .cl-company-card{position:relative;display:flex;min-width:0;flex-direction:column;padding:21px;border:1px solid var(--line);border-radius:16px;background:var(--card);box-shadow:0 2px 8px rgba(20,20,18,.035);transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+        .cl-company-card:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--acc) 32%,var(--line));box-shadow:0 10px 28px rgba(20,20,18,.08)}
+        .cl-company-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding-bottom:17px;border-bottom:1px solid var(--line)}
+        .cl-company-lockup{display:flex;align-items:center;gap:13px;min-width:0}
+        .cl-company-logo{position:relative;display:grid;flex:none;place-items:center;overflow:hidden;border:1px solid color-mix(in srgb,var(--company-mark) 24%,var(--line));border-radius:16px;background:linear-gradient(145deg,color-mix(in srgb,var(--company-mark) 12%,var(--card)),color-mix(in srgb,var(--company-mark) 4%,var(--card)));box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 3px 8px color-mix(in srgb,var(--company-mark) 12%,transparent)}
+        .cl-company-logo svg{position:relative;z-index:1;width:70%;height:70%;overflow:visible}
+        .cl-logo-shield{fill:var(--company-mark);fill-opacity:.13;stroke:var(--company-mark);stroke-width:1.5;stroke-linejoin:round}
+        .cl-logo-route{fill:none;stroke:var(--company-mark);stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
+        .cl-logo-node{fill:var(--company-mark);stroke:var(--card);stroke-width:1.5}
+        .cl-company-logo-glint{position:absolute;top:-35%;right:-20%;width:70%;height:70%;border-radius:50%;background:color-mix(in srgb,var(--company-mark) 10%,transparent);filter:blur(7px)}
+        .cl-company-wordmark{min-width:0}
+        .cl-company-wordmark>span{display:block;margin-bottom:4px;color:var(--mut);font-size:8px;font-weight:700;letter-spacing:.14em}
+        .cl-company-wordmark h3{overflow:hidden;color:var(--txt);font-size:16px;font-weight:700;line-height:1.25;text-overflow:ellipsis;white-space:nowrap}
+        .cl-company-reg{display:flex;flex-direction:column;gap:3px;align-items:flex-end;max-width:110px;padding:7px 9px;border:1px solid var(--line);border-radius:9px;background:var(--row);color:var(--txt);font-family:'IBM Plex Mono',monospace;font-size:10px;overflow-wrap:anywhere;text-align:right}
+        .cl-company-reg>span{color:var(--mut);font-family:'IBM Plex Sans',sans-serif;font-size:8px;font-weight:700;letter-spacing:.1em}
+        .cl-company-details{min-height:63px;padding:14px 0 2px}
+        .cl-company-contact{display:flex;align-items:center;gap:7px;color:var(--txt);font-size:11px;font-weight:600}
+        .cl-company-contact .ic{flex:none;color:var(--mut)}
+        .cl-company-notes{display:-webkit-box;overflow:hidden;margin-top:8px;color:var(--mut);font-size:11px;line-height:1.55;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+        .cl-company-active{display:flex;align-items:center;justify-content:space-between;margin-top:13px;padding:12px 0;border-top:1px solid var(--line);color:var(--mut);font-size:11px}
+        .cl-company-active strong{color:var(--txt);font-size:18px;font-variant-numeric:tabular-nums}
+        .cl-company-actions{display:flex;align-items:center;gap:7px;margin-top:7px;padding-top:13px;border-top:1px solid var(--line)}
+        .cl-company-actions button{display:inline-flex;min-height:36px!important;align-items:center;justify-content:center;gap:6px;padding:7px 10px!important;border:1px solid var(--line)!important;border-radius:9px;background:var(--card)!important;color:var(--txt)!important;font-size:10px;font-weight:700;white-space:nowrap}
+        .cl-company-actions button:hover{background:var(--row)!important;border-color:var(--mut)!important}
+        .cl-company-actions .cl-company-action-primary{flex:1;background:var(--acc)!important;border-color:var(--acc)!important;color:var(--acc-txt)!important}
+        .cl-company-actions .cl-company-action-primary:hover{opacity:.88}
+        .cl-company-actions .cl-company-action-secondary{color:var(--mut)!important}
+        .cl-company-actions .cl-company-delete{width:36px;min-width:36px;padding:0!important;color:var(--mut)!important}
+        .cl-company-actions .cl-company-delete:hover{color:var(--bad)!important;border-color:var(--bad)!important;background:color-mix(in srgb,var(--bad) 8%,var(--card))!important}
+        .cl-company-empty{display:flex;min-height:220px;flex-direction:column;align-items:center;justify-content:center;padding:30px;border:1px dashed var(--line);border-radius:16px;background:var(--card);text-align:center}
+        .cl-company-empty-mark{display:grid;width:48px;height:48px;place-items:center;margin-bottom:12px;border-radius:14px;background:var(--row);color:var(--mut)}
+        .cl-company-empty strong{color:var(--txt);font-size:14px}.cl-company-empty p{margin-top:5px;color:var(--mut);font-size:11px}
+        .cl-company-empty button{margin-top:14px;padding:7px 12px!important;border:1px solid var(--line)!important;background:var(--card)!important;color:var(--txt)!important;font-size:11px}
+        @media(max-width:680px){.cl-company-page-head{align-items:flex-start;padding:18px!important}.cl-company-page-title{gap:9px}.cl-company-page-title h2{font-size:19px!important}.cl-company-tools{align-items:flex-start;flex-direction:column;gap:8px}.cl-company-search-wrap{width:100%;max-width:none}.cl-company-result-count{align-self:flex-end}.cl-company-actions button{font-size:9px}.cl-company-card{padding:16px}}
+        @media(prefers-reduced-motion:reduce){.cl-company-card{transition:none!important}}
+
     </style>
 </head>
 <body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-full flex flex-col transition-colors duration-150">
@@ -904,6 +953,7 @@
         const IC = {
             dashboard: '<rect x="3" y="3" width="8" height="10"/><rect x="13" y="3" width="8" height="6"/><rect x="13" y="11" width="8" height="10"/><rect x="3" y="15" width="8" height="6"/>',
             companies: '<path d="M4 21V4l9-2v19M13 8h7v13M2 21h20M8 8h1M8 12h1M8 16h1M16 12h1M16 16h1"/>',
+            search: '<circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/>'',
             cars: '<path d="M3 17v-5l2-5h14l2 5v5M3 12h18M3 17h3M18 17h3M6 17v2h3v-2M15 17v2h3v-2"/><path d="M7 14.5h2M15 14.5h2"/>',
             users: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6M16 4.8a3.5 3.5 0 0 1 0 6.4M18 14.4c2.2.7 3.5 2.6 3.5 5.6"/>',
             fixed: '<path d="M4 20v-4M9 20v-7M14 20V9"/><path d="M16.5 6.5l2.5 2.5L23 4"/>',
@@ -924,10 +974,17 @@
         const ic = (name, n = 16) => `<svg class="ic" width="${n}" height="${n}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="butt" stroke-linejoin="miter" aria-hidden="true">${IC[name] || ''}</svg>`;
         const CL_AV_COLS = [['#26488a'],['#3d5a6c'],['#5b4b6e'],['#6b5a3c'],['#3f6b5c'],['#7a4a4a']];
         function compAvatar(name, n=48) {
-            const t = (name || '?').trim(), w = t.split(/\s+/).filter(Boolean);
-            const ini = ((w[0] || '?')[0] + (w.length > 1 ? w[1][0] : '')).toUpperCase();
-            const h = [...t].reduce((a, c) => a + c.charCodeAt(0), 0), c = CL_AV_COLS[h % CL_AV_COLS.length];
-            return `<div style="width:${n}px;height:${n}px;border-radius:${Math.round(n*.3)}px;background:${c[0]};color:#fff;display:grid;place-items:center;font-weight:600;font-size:${Math.round(n*.36)}px;letter-spacing:.02em;flex:none">${ini}</div>`;
+            const t = (name || 'Company').trim();
+            const h = [...t].reduce((a, c) => a + c.charCodeAt(0), 0), palette = CL_AV_COLS[h % CL_AV_COLS.length];
+            const color = palette[0];
+            return `<div class="cl-company-logo" style="--company-mark:${color};width:${n}px;height:${n}px" role="img" aria-label="${t} logo mark">
+                <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+                    <path class="cl-logo-shield" d="M24 4.5 39 10v11.3c0 9.5-6.2 17-15 22.2C15.2 38.3 9 30.8 9 21.3V10L24 4.5Z"/>
+                    <path class="cl-logo-route" d="M24 13v5.2c0 2.3-1.7 3.4-4 4.8s-4 2.5-4 4.8v4.8M24 18.2c0 2.3 1.7 3.4 4 4.8s4 2.5 4 4.8v4.8"/>
+                    <circle class="cl-logo-node" cx="24" cy="12.5" r="2.5"/><circle class="cl-logo-node" cx="16" cy="35" r="2"/><circle class="cl-logo-node" cx="32" cy="35" r="2"/>
+                </svg>
+                <span class="cl-company-logo-glint"></span>
+            </div>`;
         }
         const CL_SPARK_COL = {'Signal':'#34d399','Deactivated':'#94a3b8','Failing':'#fbbf24','Dead':'#f87171','Not Renewed':'#c084fc','Not Activated':'#60a5fa','Expired':'#fb7185','Removed':'#f472b6'};
         function clSpark(key, val) {
@@ -1313,59 +1370,68 @@
         };
 
 
+        let COMPANY_QUERY = '';
         function renderCompaniesView() {
+            const query = COMPANY_QUERY.trim().toLocaleLowerCase();
+            const allCompanies = window.AppState.companies;
+            const companies = allCompanies.filter(comp => {
+                if (!query) return true;
+                const linked = window.AppState.vehicles.filter(v => v.companyId === comp.id && !v.archived);
+                const searchable = [comp.name, comp.regId, comp.contact, comp.notes,
+                    ...linked.flatMap(v => [v.plateNumber, v.vin, v.deviceNumber, v.simCardNumber])]
+                    .filter(Boolean).join(' ').toLocaleLowerCase();
+                return searchable.includes(query);
+            });
             return `
             <div class="space-y-6">
-                <div class="flex items-center justify-between bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                    <div>
-                        <h2 class="text-2xl font-bold">Company Management</h2>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Manage multiple client companies and fleets</p>
+                <div class="cl-company-page-head bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <div class="cl-company-page-title">
+                        <span class="cl-company-heading-mark">${ic('companies',20)}</span>
+                        <div><h2 class="text-2xl font-bold">Company Management</h2><p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Manage client companies and their fleets</p></div>
                     </div>
-                    <button onclick="openAddCompanyModal()" class="px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-lg text-xs shadow transition flex items-center space-x-1.5">
-                                                <span>Add New Company</span>
+                    <button onclick="openAddCompanyModal()" class="px-4 py-2.5 bg-brand-600 hover:bg-brand-500 text-white font-semibold rounded-lg text-xs shadow transition flex items-center space-x-2">
+                        ${ic('companies',15)}<span>Add New Company</span>
                     </button>
                 </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    ${window.AppState.companies.map(comp => {
+                <div class="cl-company-tools">
+                    <div class="cl-company-search-wrap">
+                        <span class="cl-search-icon">${ic('search',17)}</span>
+                        <input type="search" id="companySearch" aria-label="Search companies" placeholder="Search companies, registration, contact, or vehicle details" value="${COMPANY_QUERY.replace(/&/g,'&amp;').replace(/\"/g,'&quot;')}" oninput="updateCompanySearch(this.value)">
+                        ${COMPANY_QUERY ? `<button type="button" class="cl-search-clear" onclick="updateCompanySearch('')" aria-label="Clear company search">${ic('close',15)}</button>` : ''}
+                    </div>
+                    <span class="cl-company-result-count">${query ? `${companies.length} of ${allCompanies.length} companies` : `${allCompanies.length} companies`}</span>
+                </div>
+                ${companies.length ? `<div class="cl-company-grid">
+                    ${companies.map(comp => {
                         const compVehicles = window.AppState.vehicles.filter(v => v.companyId === comp.id && !v.archived);
                         return `
-                        <div class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm hover:shadow transition flex flex-col justify-between">
-                            <div>
-                                <div class="flex items-start justify-between">
-                                    <div class="mb-4">${compAvatar(comp.name, 48)}</div>
-                                    <span class="px-2.5 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-md text-xs font-mono">
-                                        ${comp.regId || 'N/A'}
-                                    </span>
-                                </div>
-                                <h3 class="text-lg font-bold text-slate-900 dark:text-white">${comp.name}</h3>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">${comp.contact || 'No contact specified'}</p>
-                                <p class="text-xs text-slate-600 dark:text-slate-300 mt-3 line-clamp-2">${comp.notes || 'No notes'}</p>
-                                
-                                ${compMini(comp.id)}
-                                <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-xs text-slate-500">
-                                    <span>Active Vehicles:</span>
-                                    <span class="font-bold text-slate-900 dark:text-white text-sm">${compVehicles.length}</span>
-                                </div>
+                        <article class="cl-company-card">
+                            <div class="cl-company-card-head">
+                                <div class="cl-company-lockup">${compAvatar(comp.name, 56)}<div class="cl-company-wordmark"><span>FLEET PARTNER</span><h3>${comp.name}</h3></div></div>
+                                <span class="cl-company-reg"><span>REG</span>${comp.regId || 'N/A'}</span>
                             </div>
-
-                            <div class="mt-6 pt-4 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between space-x-2">
-                                <button onclick="AppState.filters.wrongInstall='ALL'; AppState.filters.status='ALL'; selectCompanyFilter('${comp.id}'); switchTab('cars');" class="flex-1 py-2 px-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 rounded-lg text-xs font-semibold transition text-center">
-                                    View Cars
-                                </button>
-                                <button onclick="reviewWrong('${comp.id}')" class="py-2 px-3 cl-btn bad rounded-lg text-xs font-semibold transition">Wrong installs</button>
-                                <button onclick="confirmDeleteCompany('${comp.id}', '${comp.name}')" class="py-2 px-3 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-900/60 rounded-lg text-xs font-semibold transition" title="Delete Company">
-                                    Delete
-                                </button>
+                            <div class="cl-company-details">
+                                <p class="cl-company-contact">${ic('users',14)}<span>${comp.contact || 'No contact specified'}</span></p>
+                                <p class="cl-company-notes">${comp.notes || 'No notes added'}</p>
                             </div>
-                        </div>
-                        `;
+                            ${compMini(comp.id)}
+                            <div class="cl-company-active"><span>Active vehicles</span><strong>${compVehicles.length}</strong></div>
+                            <div class="cl-company-actions">
+                                <button onclick="AppState.filters.wrongInstall='ALL'; AppState.filters.status='ALL'; selectCompanyFilter('${comp.id}'); switchTab('cars');" class="cl-company-action-primary">${ic('cars',14)}<span>View vehicles</span></button>
+                                <button onclick="reviewWrong('${comp.id}')" class="cl-company-action-secondary" title="Review wrong installations">${ic('fixed',14)}<span>Review issues</span></button>
+                                <button onclick="confirmDeleteCompany('${comp.id}', '${comp.name}')" class="cl-company-delete" title="Delete company" aria-label="Delete ${comp.name}">${ic('trash',15)}</button>
+                            </div>
+                        </article>`;
                     }).join('')}
-                </div>
-            </div>
-            `;
+                </div>` : `<div class="cl-company-empty"><span class="cl-company-empty-mark">${ic('companies',22)}</span><strong>${query ? 'No matching companies' : 'No companies yet'}</strong><p>${query ? 'Try another search term or clear the search.' : 'Add a company to start organizing its fleet.'}</p>${query ? `<button onclick="updateCompanySearch('')">Clear search</button>` : ''}</div>`}
+            </div>`;
         }
-
+        window.updateCompanySearch = function(value) {
+            COMPANY_QUERY = value;
+            renderApp();
+            const input = document.getElementById('companySearch');
+            if (input) { input.focus(); input.setSelectionRange(value.length, value.length); }
+        };
         window.openAddCompanyModal = function() {
             window.AppState.modal = { type: 'ADD_COMPANY' };
             renderApp();
